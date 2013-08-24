@@ -521,6 +521,19 @@ public class Scene_Play {
 							judge(JUDGE_POOR);
 						} else {
 							// draw
+							Sprite s;
+							int spriteIndex = getKeyFromChannel(d.key);
+
+							if (spriteIndex%10 == 6) {			// SCR
+								s = s_note_scr;
+							} else if ((spriteIndex%10)%2 == 0) {	// 2, 4, 8 (2,4,6)
+								s = s_note2;
+							} else {						// 1,3,5,9 (1,3,5,7) 
+								s = s_note1;
+							}
+							s.setX(noteX[spriteIndex%10+10]);
+							s.setY(bottompos);
+							s.draw(batch);
 						}
 					}
 				}
