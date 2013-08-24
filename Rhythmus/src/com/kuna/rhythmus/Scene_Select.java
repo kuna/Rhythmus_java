@@ -174,7 +174,8 @@ public class Scene_Select {
 		
 		// draw songs
 		// if same folder then sort as level
-		int sel=(int)selIndex; //sel;
+		int selectIndex=(int)selIndex;
+		int sel = selectIndex;
 		int itemHeight = 36;
 		boolean first = true;
 		font.setScale(1.0f);
@@ -195,7 +196,7 @@ public class Scene_Select {
 				sel = bmsList.bmsArr.size()-1;
 		}
 		
-		sel = (int)selIndex+1;	// next item
+		sel = selectIndex+1;	// next item
 		if (sel >= bmsList.bmsArr.size())
 			sel = 0;
 		
@@ -208,7 +209,7 @@ public class Scene_Select {
 		}
 		
 		// draw information of the selected song
-		BMSParser bp = bmsList.bmsArr.get((int)selIndex);
+		BMSParser bp = bmsList.bmsArr.get(selectIndex);
 		font.setScale(0.9f);
 		font.draw(batch, String.format("BPM %d", bp.BPM), 100, 40);
 		font.draw(batch, String.format("NOTES %d", bp.notecnt), 100, 60);
@@ -330,6 +331,7 @@ public class Scene_Select {
 		// check mouse event
 		if (sl.mouseDown) {
 			selIndex = selIndex_fixed + (sl.startY - sl.y) / (double)36;
+			selIndex %= bmsList.bmsArr.size();
 			if (selIndex>=bmsList.bmsArr.size())
 				selIndex -= bmsList.bmsArr.size();
 			if (selIndex<0)
@@ -340,8 +342,7 @@ public class Scene_Select {
 			}
 			_selIndex = selIndex;
 		} else {
-			selIndex_fixed = (int)selIndex;
-			selIndex = selIndex_fixed;
+			selIndex_fixed = selectIndex;
 		}
 		
 		if (sl.clicked) {
