@@ -386,9 +386,9 @@ public class BMSParser {
 		beat += (millisec-time)*((double)bpm/60000/4.0f);
 		
 		// cannot be larger then last beat
-		double maxbeat = bmsdata.get(bmsdata.size()-1).beat;
-		if (beat > maxbeat)
-			beat = maxbeat;
+		//double maxbeat = bmsdata.get(bmsdata.size()-1).beat;
+		//if (beat > maxbeat)
+		//	beat = maxbeat;
 		
 		return beat;
 	}

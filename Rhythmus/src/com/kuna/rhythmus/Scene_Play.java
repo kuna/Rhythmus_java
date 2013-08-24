@@ -442,8 +442,8 @@ public class Scene_Play {
 		}
 		
 		// screen fadeout
-		if (eclipsedTime > Rhythmus.bmsParser.time*1000) {
-			float a = (float) ((eclipsedTime - Rhythmus.bmsParser.time*1000) / 1000);
+		if (eclipsedTime > Rhythmus.bmsParser.time*1000 +1000) {
+			float a = (float) ((eclipsedTime - Rhythmus.bmsParser.time*1000 -1000) / 1000);
 			if (a>1) {
 				a=1;
 				Rhythmus.changeScene(Rhythmus.SCENE_RESULT);
@@ -524,11 +524,11 @@ public class Scene_Play {
 							Sprite s;
 							int spriteIndex = getKeyFromChannel(d.key);
 
-							if (spriteIndex%10 == 6) {			// SCR
+							if (spriteIndex%10 == 0) {			// SCR
 								s = s_note_scr;
-							} else if ((spriteIndex%10)%2 == 0) {	// 2, 4, 8 (2,4,6)
+							} else if ((spriteIndex%10)%2 == 0) {	// (2,4,6)
 								s = s_note2;
-							} else {						// 1,3,5,9 (1,3,5,7) 
+							} else {						// (1,3,5,7) 
 								s = s_note1;
 							}
 							s.setX(noteX[spriteIndex%10+10]);
