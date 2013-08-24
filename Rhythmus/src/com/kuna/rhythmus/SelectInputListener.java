@@ -31,6 +31,9 @@ public class SelectInputListener implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		screenX = screenX*800/Gdx.graphics.getWidth();
+		screenY = screenY*480/Gdx.graphics.getHeight();
+		
 		startX = x = screenX;
 		startY = y = screenY;
 		
@@ -41,6 +44,9 @@ public class SelectInputListener implements InputProcessor {
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		screenX = screenX*800/Gdx.graphics.getWidth();
+		screenY = screenY*480/Gdx.graphics.getHeight();
+		
 		x = screenX;
 		y = screenY;
 		
@@ -48,9 +54,6 @@ public class SelectInputListener implements InputProcessor {
 		
 		if (x == startX && y == startY)
 			clicked = true;
-
-		screenX = screenX*800/Gdx.graphics.getWidth();
-		screenY = screenY*480/Gdx.graphics.getHeight();
 		
 		// check out button press
 		if (screenX > 116 && screenX < 156) {
