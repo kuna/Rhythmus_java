@@ -73,15 +73,7 @@ public class BMSParser {
 			data = handle.readString("CP949");
 		}
 		
-		MessageDigest md;
-		try {
-			md = MessageDigest.getInstance("MD5");
-			byte[] by = data.getBytes();
-			hash = new BigInteger(1, md.digest( data.getBytes() )).toString(16);
-		} catch (NoSuchAlgorithmException e) {
-			Gdx.app.error("BMSParser", "Hashing error");
-			e.printStackTrace();
-		}
+		hash = BMSUtil.GetHash(handle.readString().getBytes());
 		return ParseBMSData(data);
 	}
 	
@@ -336,18 +328,27 @@ public class BMSParser {
 	}
 	
 	// MUST USE AFTER PARSING & SORTING!
+	/* Depreciated (from midi length) */
 	public void setTimemark() {
 		double _bpm = BPM;		// BPM for parsing
 		double _time = 0;		// time for parsing
 		double _beat = 0;		// beat for parsing
 		
 		for (int i=0; i<bmsdata.size(); i++) {
-			_time += (bmsdata.get(i).beat - _beat) * (1.0f / _bpm * 60 * 4);
-			bmsdata.get(i).time = _time*1000;	// millisecond
+			BMSKeyData d = bmsdata.get(i);
 			
-			if (bmsdata.get(i).key == 3 || bmsdata.get(i).key == 8 )	// BPM
+			// check midi length
+			while (d.beat >= (int)_beat+1) {
+				_time += ((int)_beat+1-_beat) * (1.0f/_bpm*60*4) * length_beat[(int)_beat];
+				_beat = (int)_beat+1;
+			}
+			
+			_time += (d.beat - _beat) * (1.0f / _bpm * 60 * 4) * length_beat[(int)_beat];
+			d.time = _time*1000;	// millisecond
+			
+			if (d.key == 3 || d.key == 8 )	// BPM
 				_bpm = bmsdata.get(i).value;
-			if (bmsdata.get(i).key == 9)
+			if (d.key == 9)
 				_time += bmsdata.get(i).value;
 			
 			_beat = bmsdata.get(i).beat;
@@ -360,24 +361,37 @@ public class BMSParser {
 		double bpm = BPM;
 		double beat = 0;
 		int time = 0;
+		int newtime = 0;
 		
 		for (int i=0; i<bmsdata.size(); i++) {
-			if (bmsdata.get(i).key == 9) {	// STOP
-				time += bmsdata.get(i).value * 1000;
+			BMSKeyData d = bmsdata.get(i);
+			
+			// Beat is effected by midi length ... check midi length
+			while (d.beat > beat) {
+				newtime = time + (int) (((int)beat+1-beat) * (1.0f/bpm*60*4) * 1000 * length_beat[(int)beat]);	// millisec
+				if (newtime >= millisec) {
+					return beat + (millisec-time)*(bpm/60000/4.0f)/length_beat[(int)beat];
+				}
+				
+				time = newtime;
+				beat = (int)beat+1;
+			}
+			
+			if (d.key == 9) {	// STOP
+				time += d.value * 1000;
 				if (time >= millisec)
 					return beat;
-				beat = bmsdata.get(i).beat;
 				continue;
 			}
 			
-			if (bmsdata.get(i).key == 3 || bmsdata.get(i).key == 8) {	// BPM
-				int newtime = time + (int) ((bmsdata.get(i).beat-beat) * (1.0f/bpm*60*4) * 1000);	// millisec
+			if (d.key == 3 || d.key == 8) {	// BPM
+				newtime = time + (int) ((d.beat-beat) * (1.0f/bpm*60*4) * 1000 * length_beat[(int)beat]);	// millisec
 				if (newtime >= millisec) {
-					return beat + (double)(millisec-time)*((double)bpm/60000/4.0f);
+					return beat + (millisec-time)*(bpm/60000/4.0f)/length_beat[(int)beat];
 				}
 				
-				beat = bmsdata.get(i).beat;
-				bpm = bmsdata.get(i).value;
+				beat = d.beat;
+				bpm = d.value;
 				time = newtime;
 			}
 		}

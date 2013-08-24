@@ -79,6 +79,10 @@ public class Rhythmus implements ApplicationListener {
 
 	@Override
 	public void dispose() {
+		// save BMSList cache
+		bmsList.SaveBMSCache();
+		
+		// memory release
 		sSelect.dispose();
 		sDecide.dispose();
 		sPlay.dispose();

@@ -466,8 +466,8 @@ public class Scene_Play {
 			BMSKeyData d = Rhythmus.bmsParser.bmsdata.get(i);
 			if (d.beat >= _beat) {
 				// check beat (line drawing)
-				while (d.beat > (int)_beat) {
-					pos += ((int)(_beat+1) - _beat) * speed * _bpm * Rhythmus.bmsParser.length_beat[(int)d.beat]
+				while (d.beat > (int)_beat+1) {
+					pos += ((int)(_beat+1) - _beat) * speed * _bpm * Rhythmus.bmsParser.length_beat[(int)_beat]
 							* lainheight/200;
 					_beat = (int)_beat+1;
 
@@ -480,10 +480,16 @@ public class Scene_Play {
 						* lainheight/200;
 				_beat = d.beat;
 				
+				// draw line(2) -- when beat%1 == 0
+				if (d.beat%1==0)
+				{
+					s_white.setPosition(leftPos, pos);
+					s_white.draw(batch, 0.5f);
+				}
+				
 				// check type
 				if (d.key == 9)					// STOP
 				{
-					_beat = d.beat;
 					continue;
 				}
 				if (d.key == 3 || d.key == 8) {	// BPM
@@ -510,8 +516,8 @@ public class Scene_Play {
 				if (autoplay > 0 && d.attr == 0) {
 					pressNote( getKeyFromChannel(d.key) );
 					releaseNote( getKeyFromChannel(d.key) );
-					/*d.attr = 1;
-					BMSData.playSound((int) d.value);
+					d.attr = 1;	// pressed, anyway.
+					/*BMSData.playSound((int) d.value);
 					judge(JUDGE_PGREAT);*/
 				} else {
 					// its a dropped note - check out missed note
