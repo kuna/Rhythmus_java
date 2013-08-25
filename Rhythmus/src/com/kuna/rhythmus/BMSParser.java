@@ -39,12 +39,14 @@ public class BMSParser {
 	public String[] str_bg = new String[1322];
 	public double[] str_bpm = new double[1322];
 	public double[] str_stop = new double[1322];
+	public boolean[] LNObj = new boolean[1322];
 	public double[] length_beat = new double[65536];		// MAXIMUM_BEAT
 	public List<BMSKeyData> bmsdata = new ArrayList<BMSKeyData>();	// MAXIMUM_OBJECT (Trans object+hit object+STOP+BPM)
 	public List<BMSKeyData> bgadata = new ArrayList<BMSKeyData>();	// BGA
 	public List<BMSKeyData> bgmdata = new ArrayList<BMSKeyData>();	// BGM
 	public int notecnt;
 	public double time;
+	private int LNType;
 	
 	private static int BMS_PARSER_HEADER = 1;
 	private static int BMS_PARSER_MAINDATA = 2;
@@ -53,6 +55,9 @@ public class BMSParser {
 	public boolean readHeaderOnly = false;
 	
 	private int BMSParseMode;
+	private int randomStackCnt;
+	private int[] randomVal = new int[256];		// Maximum stack: 256
+	private int[] condition = new int[256];		// 0: read line, 1: ignore line, 2: executing command, 3: command already executed
 	
 	public boolean LoadBMSFile(String path) {
 		Gdx.app.log("BMSFile", String.format( (readHeaderOnly?"Loading BMS File: %s (Only Header)":"Loading BMS File: %s"), path) );
@@ -89,6 +94,9 @@ public class BMSParser {
 		genre = "";
 		artist = "";
 		stagefile = "";
+		LNType = 0;
+		for (int i=0; i<1322; i++)
+			LNObj[i] = false;
 		bmsdata.clear();
 		bgmdata.clear();
 		bgadata.clear();
@@ -104,6 +112,7 @@ public class BMSParser {
 			Collections.sort(bmsdata);
 			Collections.sort(bgadata);
 			Collections.sort(bgmdata);
+			ProcessLongnote();
 		}
 		
 		// when difficulty is not setted,
@@ -147,6 +156,43 @@ public class BMSParser {
 	}
 	
 	public void ProcessBMSLine(String line) {
+		// preprocessor
+		if (line.toUpperCase().startsWith("#RANDOM") || line.toUpperCase().startsWith("#SETRANDOM")) {
+			String args[] = line.split(" ");
+			int val = Integer.parseInt(args[1]);
+			randomVal[randomStackCnt++] = (int)(Math.random()*val);
+			return;
+		} else if (line.toUpperCase().startsWith("#IF")) {
+			String args[] = line.split(" ");
+			int val = Integer.parseInt(args[1]);
+			if (val == randomVal[randomStackCnt-1])
+				condition[randomStackCnt-1] = 2;
+			else
+				condition[randomStackCnt-1] = 0;
+			return;
+		} else if (line.toUpperCase().startsWith("#ELSEIF")) {
+			if (condition[randomStackCnt-1] == 2) {
+				condition[randomStackCnt-1] = 3;
+				return;
+			}
+			
+			String args[] = line.split(" ");
+			int val = Integer.parseInt(args[1]);
+			if (val == randomVal[randomStackCnt-1])
+				condition[randomStackCnt-1] = 2;
+			else
+				condition[randomStackCnt-1] = 0;
+			return;
+		} else if (line.compareToIgnoreCase("#ENDIF") == 0) {
+			condition[--randomStackCnt] = 0;
+			return;
+		}
+		if (randomStackCnt > 0) {
+			if (condition[randomStackCnt-1] == 1 || condition[randomStackCnt-1] == 3)
+				return;
+		}
+		// preprocessor end
+		
 		if (line.compareTo("*---------------------- HEADER FIELD") == 0) {
 			BMSParseMode = BMS_PARSER_HEADER;
 			return;
@@ -199,6 +245,21 @@ public class BMSParser {
 				} else
 				if (args[0].compareToIgnoreCase("#STAGEFILE") == 0) {
 					stagefile = args[1];
+				} else
+				if (args[0].compareToIgnoreCase("#LNTYPE") == 0) {
+					LNType = Integer.parseInt(args[1]);
+				} else
+				if (args[0].toUpperCase().startsWith("#STP")) {
+					String[] pt = args[0].substring(4).split("[.]");
+					
+					BMSKeyData nData = new BMSKeyData();
+					nData.value = Double.parseDouble(args[1]);
+					nData.key = 9;		// STOP Channel
+					nData.beat = Integer.parseInt(pt[0]) + (double)Integer.parseInt(pt[1])/1000;
+					bmsdata.add(nData);
+				} else
+				if (args[0].toUpperCase().startsWith("#LNOBJ")) {
+					LNObj[HexToInt(args[1])] = true;
 				} else
 				if (args[0].toUpperCase().startsWith("#BMP")) {
 					int index = HexToInt(args[0].substring(4, 6));
@@ -274,7 +335,13 @@ public class BMSParser {
 							case 16:
 							case 18:
 							case 19:
-								bmsdata.add(nData);
+								// check LNOBJ command
+								if (LNObj[val]) {
+									AddLongNote(nData, 1);
+									notecnt--;	//
+								} else {
+									bmsdata.add(nData);
+								}
 								break;
 							case 31:
 							case 32:
@@ -285,6 +352,17 @@ public class BMSParser {
 							case 38:
 							case 39:
 								bmsdata.add(nData);
+								break;
+							case 51:
+							case 52:
+							case 53:
+							case 54:
+							case 55:
+							case 56:
+							case 58:
+							case 59:
+								// long note
+								AddLongNote(nData, LNType);
 								break;
 							}
 						}
@@ -417,5 +495,51 @@ public class BMSParser {
 				bpm = bmsdata.get(i).value;
 		}
 		return bpm;
+	}
+	
+	// this command MUST be called after sorting!
+	// only proc LONGNOTE TYPE 2
+	private void ProcessLongnote() {
+		for (int i=0; i<bmsdata.size(); i++) {
+			BMSKeyData d = bmsdata.get(i);
+			if (d.key > 50 && d.key<60) {
+				if (d.attr == 1) {
+					// LNTYPE 1
+					for (int j=i+1; j<bmsdata.size(); j++) {
+						if (bmsdata.get(j).key == d.key) {
+							bmsdata.get(j).attr = 4;	// longnote end attr = 4
+							break;
+						}
+					}
+					d.attr = 0;
+					notecnt++;
+				} else if (d.attr == 2) {
+					// LNTYPE 2
+					int prevIndex=-1;
+					for (int j=i+1; j<bmsdata.size(); j++) {
+						if (bmsdata.get(j).key == d.key) {
+							if (d.value != bmsdata.get(j).key)
+								break;
+							if (prevIndex > 0) {
+								bmsdata.remove(prevIndex);
+								j--;
+							}
+							bmsdata.get(j).key += 100;
+							bmsdata.get(j).attr = 4;	// longnote end attr = 4
+							prevIndex = j;
+							break;
+						}
+					}
+					d.attr = 0;
+					notecnt++;
+				}
+			}
+		}
+	}
+	
+	private void AddLongNote(BMSKeyData d, int type) {
+		d.key = d.key%10 + 50;
+		d.attr = type;
+		bmsdata.add(d);
 	}
 }

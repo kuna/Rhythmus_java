@@ -22,7 +22,20 @@ public class BMSUtil {
 		return hash;
 	}
 	
-	public static BMSKeyData getLastValidKey(BMSParser bp, int channel) {
+	public static BMSKeyData getLastValidKey(BMSParser bp, int key) {
+		// only pressable note! (includes longnote)
+		for (int i=0; i<bp.bmsdata.size(); i++) {
+			if (bp.bmsdata.get(i).key%10 == key &&
+					((bp.bmsdata.get(i).key > 10 && bp.bmsdata.get(i).key < 20) ||
+					(bp.bmsdata.get(i).key > 50 && bp.bmsdata.get(i).key < 60)) &&
+					bp.bmsdata.get(i).attr == 0)
+				return bp.bmsdata.get(i);
+		}
+		
+		return null;
+	}
+	
+	public static BMSKeyData getLastValidChannel(BMSParser bp, int channel) {
 		for (int i=0; i<bp.bmsdata.size(); i++) {
 			if (bp.bmsdata.get(i).key == channel &&
 					bp.bmsdata.get(i).attr == 0)
