@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.kuna.rhythmus.score.ScoreData;
@@ -42,7 +44,9 @@ public class BMSList {
 				bp.playlevel = Integer.parseInt(args[10]);
 				bp.notecnt = Integer.parseInt(args[11]);
 				
-				bmsArr.add(bp);
+				// ONLY add when file exists
+				if (Gdx.files.external(bp.path).exists())
+					bmsArr.add(bp);
 			}
 		}
 	}
@@ -91,6 +95,12 @@ public class BMSList {
 							bmshandle.path().endsWith(".bml")) {
 						bmsFileList.add(bmshandle.path());
 					}
+				}
+				
+				// if android then add .nomedia file
+				// automatically
+				if (Gdx.app.getType() == ApplicationType.Android) {
+					Gdx.files.external(f.path() + "/" + ".nomedia").writeString("", false);
 				}
 			}
 		}

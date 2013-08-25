@@ -494,7 +494,7 @@ public class Scene_Play {
 				}
 				if (d.key == 3 || d.key == 8) {	// BPM
 					_bpm = d.value;
-				} else if (d.key > 10) {		// key
+				} else if (d.key > 10 && d.key<20) {		// key
 					int x;
 					Sprite s;
 					if (d.key%10 == 6) {			// SCR
@@ -516,7 +516,6 @@ public class Scene_Play {
 				if (autoplay > 0 && d.attr == 0) {
 					pressNote( getKeyFromChannel(d.key) );
 					releaseNote( getKeyFromChannel(d.key) );
-					d.attr = 1;	// pressed, anyway.
 					/*BMSData.playSound((int) d.value);
 					judge(JUDGE_PGREAT);*/
 				} else {

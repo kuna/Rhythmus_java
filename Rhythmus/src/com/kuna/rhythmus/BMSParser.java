@@ -180,7 +180,7 @@ public class BMSParser {
 					artist = args[1];
 				} else
 				if (args[0].compareToIgnoreCase("#BPM") == 0) {
-					BPM = Integer.parseInt(args[1]);
+					BPM = (int) Double.parseDouble(args[1]);
 				} else
 				if (args[0].compareToIgnoreCase("#DIFFICULTY") == 0) {
 					difficulty = Integer.parseInt(args[1]);
@@ -192,27 +192,27 @@ public class BMSParser {
 					rank = Integer.parseInt(args[1]);
 				} else
 				if (args[0].compareToIgnoreCase("#TOTAL") == 0) {
-					total = Integer.parseInt(args[1]);
+					total = (int) Double.parseDouble(args[1]);
 				} else
 				if (args[0].compareToIgnoreCase("#VOLWAV") == 0) {
-					volwav = Integer.parseInt(args[1]);
+					volwav = (int) Double.parseDouble(args[1]);
 				} else
 				if (args[0].compareToIgnoreCase("#STAGEFILE") == 0) {
 					stagefile = args[1];
 				} else
-				if (args[0].startsWith("#BMP")) {
+				if (args[0].toUpperCase().startsWith("#BMP")) {
 					int index = HexToInt(args[0].substring(4, 6));
 					str_bg[index] = args[1];
 				} else
-				if (args[0].startsWith("#WAV")) {
+				if (args[0].toUpperCase().startsWith("#WAV")) {
 					int index = HexToInt(args[0].substring(4, 6));
 					str_wav[index] = args[1];
 				} else
-				if (args[0].startsWith("#BPM")) {
+				if (args[0].toUpperCase().startsWith("#BPM")) {
 					int index = HexToInt(args[0].substring(4, 6));
 					str_bpm[index] = Double.parseDouble(args[1]);
 				} else
-				if (args[0].startsWith("#STOP")) {
+				if (args[0].toUpperCase().startsWith("#STOP")) {
 					int index = HexToInt(args[0].substring(4, 6));
 					str_stop[index] = Double.parseDouble(args[1]);
 				}
@@ -328,7 +328,6 @@ public class BMSParser {
 	}
 	
 	// MUST USE AFTER PARSING & SORTING!
-	/* Depreciated (from midi length) */
 	public void setTimemark() {
 		double _bpm = BPM;		// BPM for parsing
 		double _time = 0;		// time for parsing
@@ -347,11 +346,11 @@ public class BMSParser {
 			d.time = _time*1000;	// millisecond
 			
 			if (d.key == 3 || d.key == 8 )	// BPM
-				_bpm = bmsdata.get(i).value;
+				_bpm = d.value;
 			if (d.key == 9)
-				_time += bmsdata.get(i).value;
+				_time += d.value;
 			
-			_beat = bmsdata.get(i).beat;
+			_beat = d.beat;
 		}
 		
 		time = _time;
@@ -360,15 +359,17 @@ public class BMSParser {
 	public double getBeatFromTime(int millisec) {
 		double bpm = BPM;
 		double beat = 0;
-		int time = 0;
-		int newtime = 0;
+		
+		// for more precision set vals as Double
+		double time = 0;
+		double newtime = 0;
 		
 		for (int i=0; i<bmsdata.size(); i++) {
 			BMSKeyData d = bmsdata.get(i);
 			
 			// Beat is effected by midi length ... check midi length
-			while (d.beat > beat) {
-				newtime = time + (int) (((int)beat+1-beat) * (1.0f/bpm*60*4) * 1000 * length_beat[(int)beat]);	// millisec
+			while (d.beat > (int)beat+1) {
+				newtime = time + ((int)beat+1-beat) * (1.0f/bpm*60*4) * 1000 * length_beat[(int)beat];	// millisec
 				if (newtime >= millisec) {
 					return beat + (millisec-time)*(bpm/60000/4.0f)/length_beat[(int)beat];
 				}
@@ -385,7 +386,7 @@ public class BMSParser {
 			}
 			
 			if (d.key == 3 || d.key == 8) {	// BPM
-				newtime = time + (int) ((d.beat-beat) * (1.0f/bpm*60*4) * 1000 * length_beat[(int)beat]);	// millisec
+				newtime = time + (d.beat-beat) * (1.0f/bpm*60*4) * 1000 * length_beat[(int)beat];	// millisec
 				if (newtime >= millisec) {
 					return beat + (millisec-time)*(bpm/60000/4.0f)/length_beat[(int)beat];
 				}
