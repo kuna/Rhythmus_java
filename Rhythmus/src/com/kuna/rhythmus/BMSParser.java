@@ -94,7 +94,7 @@ public class BMSParser {
 		genre = "";
 		artist = "";
 		stagefile = "";
-		LNType = 0;
+		LNType = 1;	// 1 is default
 		for (int i=0; i<1322; i++)
 			LNObj[i] = false;
 		bmsdata.clear();

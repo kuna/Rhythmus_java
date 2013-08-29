@@ -139,7 +139,9 @@ public class Rhythmus implements ApplicationListener {
 			sSelect.init();
 			break;
 		case SCENE_DECIDE:
+			// dispose and clear input device
 			sSelect.dispose();
+			Gdx.input.setInputProcessor(null);
 			
 			// must bmsload first
 			Rhythmus.bmsParser = new BMSParser();

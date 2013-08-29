@@ -73,6 +73,7 @@ public class Scene_Play {
 	private BMSKeyData[] longnotePressData = new BMSKeyData[8];
 	private int[] longnotePress = new int[8];
 	private int[] longnoteJudge = new int[8];
+	private float[] longnoteBeat = new float[8];
 	private int lainheight = 480;
 	private int bottompos = 0;
 	private int prs_left;
@@ -548,50 +549,61 @@ public class Scene_Play {
 					}
 				}
 			} else {
+				/*** Smaller Beat then now (Delayed Beat) ***/
 				// when autoplay
 				if (autoplay > 0) {
 					if (d.attr == 0 && d.key>10 && d.key<20) {
 						pressNote( getKeyFromChannel(d.key) );
 						releaseNote( getKeyFromChannel(d.key) );
 					} else if (d.key > 50 && d.key<60) {
-						if (d.attr == 0) {
+						int lindex = keyindex2[d.key%10];
+						if (d.attr == 0 && longnotePress[lindex] == 0) {
 							pressNote( getKeyFromChannel(d.key) );
-						} else if (d.attr == 4) {
+						} else if (d.attr == 4 && longnotePress[lindex] > 0) {
 							releaseNote( getKeyFromChannel(d.key) );
 						}
 					}
 					/*BMSData.playSound((int) d.value);
 					judge(JUDGE_PGREAT);*/
 				} else {
+				}
+
+				if (d.attr == 0) {
 					// its a dropped note - check out missed note
-					if (d.attr == 0) {
-						if (eclipsedTime - d.time + Settings.judgetime > judgetime*8) {
-							if (d.key > 10 && d.key < 20) {
-								d.attr = 1;
-								judge(JUDGE_POOR);
-							}
-							if (d.key > 50 && d.key < 60) {
-								d.attr = 2;
-								judge(JUDGE_POOR);
-							}
-						} else {
-							// if delayed note then draw it
-							if (d.key > 10 && d.key < 20) {
-								// draw
-								Sprite s;
-								int spriteIndex = getKeyFromChannel(d.key);
-								s = noteSprite[spriteIndex%10];
-								s.setSize(noteWidth[ spriteIndex%10 ], noteHeight);
-								s.setX(noteX[spriteIndex%10+10]);
-								s.setY(bottompos);
-								s.draw(batch);
-							}
+					if (eclipsedTime - d.time + Settings.judgetime > judgetime*8) {
+						if (d.key > 10 && d.key < 20) {
+							d.attr = 1;
+							judge(JUDGE_POOR);
+						}
+						if (d.key > 50 && d.key < 60) {
+							d.attr = 2;
+							judge(JUDGE_POOR);
+						}
+					} else {
+						// if delayed note then draw it
+						if (d.key > 10 && d.key < 20) {
+							// draw
+							Sprite s;
+							int spriteIndex = getKeyFromChannel(d.key);
+							s = noteSprite[spriteIndex%10];
+							s.setSize(noteWidth[ spriteIndex%10 ], noteHeight);
+							s.setX(noteX[spriteIndex%10+10]);
+							s.setY(bottompos);
+							s.draw(batch);
 						}
 					}
 				}
 				
 				if (d.key > 50 && d.key < 60) {
 					int lindex = keyindex2[d.key%10];
+					// if longnote is still pressed when press time is over
+					// then automatically put it up
+					if (d.attr == 4 && longnotePress[lindex] > 0) {
+						longnotePress[lindex] = 0;
+						judge(longnoteJudge[lindex]);
+					}
+					
+					// Check longnote
 					if (d.attr < 4) {
 						// LONGNOTE START
 						longnotePos[lindex] = pos;
@@ -600,9 +612,11 @@ public class Scene_Play {
 					} else if (d.attr >= 4) {
 						// LONGNOTE END
 						longnoteIndex[lindex] = -1;
+						d.attr = 5;	// passed longnote
 					}
 				}
 			}
+			
 			if (pos > Rhythmus.SCREEN_HEIGHT)	// Out of screen
 				break;
 		}
@@ -610,21 +624,19 @@ public class Scene_Play {
 		// if longnote exists then draw them
 		for (int i=0; i<8; i++) {
 			if (longnoteIndex[i] >= 0) {
-				int longStartAttr = Rhythmus.bmsParser.bmsdata.get(longnoteIndex[i]).attr;
 				Sprite s = noteSprite[i];
 				s.setSize(noteWidth[i], Rhythmus.SCREEN_HEIGHT-longnotePos[i]);
 				s.setX(noteX[i+10]);
 				s.setY(longnotePos[i]);
-				if (longStartAttr == 0 || longStartAttr == 2) {
+				if (longnoteStatus[i] == 0 || longnoteStatus[i] == 2) {
 					// draw normal longnote
 					s.draw(batch);
-				} else if (longStartAttr == 3) {
+				} else if (longnoteStatus[i] == 3) {
 					// draw failed longnote
 					s.draw(batch, 0.5f);
 				}
 			}
 		}
-
 		
 		/*** START ALPHA(COLOR) BLENDING ***/
 		// draw press effect
@@ -852,13 +864,12 @@ public class Scene_Play {
 			
 			if (d.key > 50 && d.key < 60) {
 				// only check bad timing on longnote press...
-				if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*6 ) {
-					judge(JUDGE_BAD);
-					d.attr = 3;
-				} else {
+				if (Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*4) {
+					// when its inside GOOD timing
 					// Long note pressed
 					longnotePress[n] = 1;
 					longnotePressData[n] = d;
+					longnoteBeat[n] = (float) d.beat;
 
 					if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime ) {
 						longnoteJudge[n] = JUDGE_PGREAT;
@@ -868,6 +879,9 @@ public class Scene_Play {
 						longnoteJudge[n] = JUDGE_GOOD;
 					}
 					d.attr = 2;
+				} else if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*6 ) {
+					judge(JUDGE_BAD);
+					d.attr = 3;
 				}
 			} else {
 				// normal note pressed
@@ -898,16 +912,30 @@ public class Scene_Play {
 		// check long note
 		if (longnotePress[n] > 0) {
 			// get release key data
-			// it's bigger then lnIndex
 			BMSKeyData d = longnotePressData[n];
 			
+			// find end of the longnote
+			BMSKeyData end = null;
+			for (int i=0; i<Rhythmus.bmsParser.bmsdata.size(); i++) {
+				if (Rhythmus.bmsParser.bmsdata.get(i).beat < d.beat)
+					continue;
+				
+				if (Rhythmus.bmsParser.bmsdata.get(i).key == d.key && Rhythmus.bmsParser.bmsdata.get(i).attr == 4) {
+					end = Rhythmus.bmsParser.bmsdata.get(i);
+					break;
+				}
+			}
+			
+			if (end == null)
+				return;
+			
 			// you should not release it over GOOD timing
-			if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*4 ) {
+			if ( Math.abs(end.time - eclipsedTime + Settings.judgetime) < judgetime*4 ) {
 				judge(longnoteJudge[n]);
-				d.attr = 1;
+				d.attr = 2;
 			} else {
 				judge(JUDGE_BAD);
-				d.attr = 1;
+				d.attr = 3;
 			}
 			
 			longnotePress[n] = 0;
