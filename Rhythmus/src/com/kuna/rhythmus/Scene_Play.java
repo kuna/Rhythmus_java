@@ -70,8 +70,8 @@ public class Scene_Play {
 	private int effectHeight;
 	private int leftPos, rightPos, lainWidth;
 	private int[] notePress = new int[8];
-	private int[] longnotePress = new int[8];
 	private BMSKeyData[] longnotePressData = new BMSKeyData[8];
+	private int[] longnotePress = new int[8];
 	private int[] longnoteJudge = new int[8];
 	private int lainheight = 480;
 	private int bottompos = 0;
@@ -82,7 +82,7 @@ public class Scene_Play {
 	private Sprite bga_now = null;
 	private Sprite bga_overlay = null;
 	private int[] keyindex = {6,1,2,3,4,5,8,9};
-	private int[] keyindex2 = {0,1,2,3,4,5,0,0,6,7};
+	private int[] keyindex2 = {-1,1,2,3,4,5,0,-1,6,7};
 	
 	PlayInputListener pl;
 	
@@ -474,11 +474,12 @@ public class Scene_Play {
 		float pos = bottompos;
 		double _beat = beat;
 		double _bpm = bpm;
-		float[] longStartPos = new float[10];
-		int[] longStartIndex = new int[10];
-		for (int i=0; i<10; i++) {
-			longStartPos[i] = bottompos;
-			longStartIndex[i] = -1;
+		float[] longnotePos = new float[8];
+		int[] longnoteIndex = new int[8];
+		int[] longnoteStatus = new int[8];
+		for (int i=0; i<8; i++) {
+			longnotePos[i] = bottompos;
+			longnoteIndex[i] = -1;
 		}
 		
 		for (int i=0; i<Rhythmus.bmsParser.bmsdata.size(); i++) {
@@ -523,28 +524,27 @@ public class Scene_Play {
 						s.draw(batch);
 					}
 				} else if (d.key > 50 && d.key < 60) {		// LONGNOTE -------------------
-					if (longStartIndex[d.key%10] < 0) {
+					int lindex = keyindex2[d.key%10];
+					if (d.attr < 4) {
 						// LONGNOTE START
-						if (d.attr != 1) {	/* ignore processed note */
-							longStartPos[d.key%10] = pos;
-							longStartIndex[d.key%10] = i;
-						}
-					} else if (d.attr == 4) {
+						longnotePos[lindex] = pos;
+						longnoteIndex[lindex] = i;
+						longnoteStatus[lindex] = d.attr;
+					} else if (d.attr == 4 && longnoteIndex[lindex]>=0) {
 						// LONGNOTE END
-						int longStartAttr = Rhythmus.bmsParser.bmsdata.get(longStartIndex[d.key%10]).attr;
-						Sprite s = noteSprite[ keyindex2[d.key%10] ];
-						s.setSize(noteWidth[ keyindex2[d.key%10] ], pos-longStartPos[d.key%10]);
-						s.setX(noteX[d.key%10]);
-						s.setY(longStartPos[d.key%10]);
-						if (longStartAttr == 0 || longStartAttr == 2) {
+						Sprite s = noteSprite[ lindex ];
+						s.setSize(noteWidth[ lindex ], pos-longnotePos[lindex]);
+						s.setX(noteX[lindex+10]);
+						s.setY(longnotePos[lindex]);
+						if (longnoteStatus[lindex] == 0 || longnoteStatus[lindex] == 2) {
 							// draw normal longnote
 							s.draw(batch);
-						} else if (longStartAttr == 3) {
+						} else if (longnoteStatus[lindex] == 3) {
 							// draw failed longnote
 							s.draw(batch, 0.5f);
 						}
-						
-						longStartIndex[d.key%10] = -1;
+
+						longnoteIndex[lindex] = -1;
 					}
 				}
 			} else {
@@ -587,20 +587,20 @@ public class Scene_Play {
 								s.draw(batch);
 							}
 						}
-					} else if (d.attr == 4) {
-						// let unreleased long note released
-						if (longnotePress[keyindex2[d.key]]>0) {
-							longnoteRelease(keyindex2[d.key]);
-						}
-						Rhythmus.bmsParser.bmsdata.get(longStartIndex[d.key%10]).attr = 1;
-						d.attr=5;
 					}
 				}
 				
-				// long note start
-				if (d.key>50 && d.key < 60 && d.attr < 4 && d.attr != 1) {
-					longStartIndex[d.key%10] = i;
-					longStartPos[d.key%10] = bottompos;
+				if (d.key > 50 && d.key < 60) {
+					int lindex = keyindex2[d.key%10];
+					if (d.attr < 4) {
+						// LONGNOTE START
+						longnotePos[lindex] = pos;
+						longnoteIndex[lindex] = i;
+						longnoteStatus[lindex] = d.attr;
+					} else if (d.attr >= 4) {
+						// LONGNOTE END
+						longnoteIndex[lindex] = -1;
+					}
 				}
 			}
 			if (pos > Rhythmus.SCREEN_HEIGHT)	// Out of screen
@@ -608,13 +608,13 @@ public class Scene_Play {
 		}
 		
 		// if longnote exists then draw them
-		for (int i=0; i<10; i++) {
-			if (longStartIndex[i] >= 0) {
-				int longStartAttr = Rhythmus.bmsParser.bmsdata.get(longStartIndex[i]).attr;
-				Sprite s = noteSprite[ keyindex2[i%10] ];
-				s.setSize(noteWidth[ keyindex2[i%10] ], Rhythmus.SCREEN_HEIGHT-longStartPos[i%10]);
-				s.setX(noteX[i%10]);
-				s.setY(longStartPos[i%10]);
+		for (int i=0; i<8; i++) {
+			if (longnoteIndex[i] >= 0) {
+				int longStartAttr = Rhythmus.bmsParser.bmsdata.get(longnoteIndex[i]).attr;
+				Sprite s = noteSprite[i];
+				s.setSize(noteWidth[i], Rhythmus.SCREEN_HEIGHT-longnotePos[i]);
+				s.setX(noteX[i+10]);
+				s.setY(longnotePos[i]);
 				if (longStartAttr == 0 || longStartAttr == 2) {
 					// draw normal longnote
 					s.draw(batch);
@@ -1006,10 +1006,6 @@ public class Scene_Play {
 		judgeTime = TimeUtils.millis();
 	}
 	
-	private void longnoteRelease(int num) {
-		
-	}
-	
 	public void exitGame(int v) {
 		// force exit
 		if (exitmode > 0) return;
@@ -1032,24 +1028,7 @@ public class Scene_Play {
 	}
 	
 	private int getKeyFromChannel(int channel) {
-		if (channel == 16)
-			return 0;
-		else if (channel == 11)
-			return 1;
-		else if (channel == 12)
-			return 2;
-		else if (channel == 13)
-			return 3;
-		else if (channel == 14)
-			return 4;
-		else if (channel == 15)
-			return 5;
-		else if (channel == 18)
-			return 6;
-		else if (channel == 19)
-			return 7;
-		else 
-			return -1;
+		return keyindex2[channel%10];
 	}
 	
 	private boolean[] getTouchStatus() {

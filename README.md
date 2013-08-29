@@ -45,3 +45,7 @@ Bugfix & Update
 ##### 130826
 
 1. Fixed Sorting(Comparsion) error (occured at some BMS)
+
+##### 130829
+
+1. 롱노트 표시가 정상적으로 됩니다 (오토플레이와 키 입력은 아직 정상작동하지 않습니다.)

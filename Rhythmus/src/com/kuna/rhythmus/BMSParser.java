@@ -337,6 +337,14 @@ public class BMSParser {
 							case 19:
 								// check LNOBJ command
 								if (LNObj[val]) {
+									for (int _i=bmsdata.size()-1; _i>=0 ;_i--)
+									{
+										if (nData.key == bmsdata.get(_i).key) {
+											bmsdata.get(_i).key = bmsdata.get(_i).key%10+50;
+											bmsdata.get(_i).attr = 1;
+											break;
+										}
+									}
 									AddLongNote(nData, 1);
 									notecnt--;	//
 								} else {
@@ -506,32 +514,31 @@ public class BMSParser {
 				if (d.attr == 1) {
 					// LNTYPE 1
 					for (int j=i+1; j<bmsdata.size(); j++) {
-						if (bmsdata.get(j).key == d.key) {
+						if (bmsdata.get(j).key == d.key && bmsdata.get(j).attr == 1) {
 							bmsdata.get(j).attr = 4;	// longnote end attr = 4
+							notecnt++;
 							break;
 						}
 					}
 					d.attr = 0;
-					notecnt++;
 				} else if (d.attr == 2) {
 					// LNTYPE 2
 					int prevIndex=-1;
 					for (int j=i+1; j<bmsdata.size(); j++) {
-						if (bmsdata.get(j).key == d.key) {
+						if (bmsdata.get(j).key == d.key && bmsdata.get(j).attr == 2) {
 							if (d.value != bmsdata.get(j).key)
 								break;
 							if (prevIndex > 0) {
 								bmsdata.remove(prevIndex);
 								j--;
 							}
-							bmsdata.get(j).key += 100;
 							bmsdata.get(j).attr = 4;	// longnote end attr = 4
 							prevIndex = j;
+							notecnt++;
 							break;
 						}
 					}
 					d.attr = 0;
-					notecnt++;
 				}
 			}
 		}

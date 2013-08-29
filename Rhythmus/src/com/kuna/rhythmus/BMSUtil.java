@@ -35,6 +35,17 @@ public class BMSUtil {
 		return null;
 	}
 	
+	public static void setLastValidKey(BMSParser bp, int key, BMSKeyData d) {
+		// only pressable note! (includes longnote)
+		for (int i=0; i<bp.bmsdata.size(); i++) {
+			if (bp.bmsdata.get(i).key%10 == key &&
+					((bp.bmsdata.get(i).key > 10 && bp.bmsdata.get(i).key < 20) ||
+					(bp.bmsdata.get(i).key > 50 && bp.bmsdata.get(i).key < 60)) &&
+					bp.bmsdata.get(i).attr == 0)
+				bp.bmsdata.set(i, d);
+		}
+	}
+	
 	public static BMSKeyData getLastValidChannel(BMSParser bp, int channel) {
 		for (int i=0; i<bp.bmsdata.size(); i++) {
 			if (bp.bmsdata.get(i).key == channel &&
