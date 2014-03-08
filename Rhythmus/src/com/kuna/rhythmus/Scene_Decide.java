@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
-public class Scene_Decide {
+public class Scene_Decide implements Scene {
 	private Texture t_bg;
 	private Sprite s_bg;
 	
@@ -17,6 +17,9 @@ public class Scene_Decide {
 
 	private ShapeRenderer r;
 	
+	private boolean initalized = false;
+	
+	@Override
 	public void init()
 	{
 		// load bitmap
@@ -33,9 +36,14 @@ public class Scene_Decide {
 
 		// Thread inside so no deadlock
 		BMSData.LoadData(Rhythmus.bmsParser);
+		
+		initalized = true;
 	}
-	
+
+	@Override
 	public void draw(SpriteBatch batch) {
+		if (!initalized) return;
+		
 		// draw BMS title and background
 		if (s_bg != null) {
 			s_bg.draw(batch);
@@ -71,7 +79,8 @@ public class Scene_Decide {
 			Rhythmus.changeScene( Rhythmus.SCENE_PLAY );
 		}
 	}
-	
+
+	@Override
 	public void dispose() {
 		if (t_bg != null)
 			t_bg.dispose();

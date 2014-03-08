@@ -30,15 +30,17 @@ public class Rhythmus implements ApplicationListener {
 	public static final int SCENE_DECIDE = 1;
 	public static final int SCENE_PLAY = 2;
 	public static final int SCENE_RESULT = 3;
+	public static final int SCENE_EDIT = 4;
 	
 	public static final int SCREEN_WIDTH = 800;
 	public static final int SCREEN_HEIGHT = 480;
 	
 	// scenes
-	public static Scene_Select sSelect;
-	public static Scene_Decide sDecide;
-	public static Scene_Play sPlay;
-	public static Scene_Result sResult;
+	public Scene_Select sSelect;
+	public Scene_Decide sDecide;
+	public Scene_Play sPlay;
+	public Scene_Result sResult;
+	public Scene_sdf
 	
 	@Override
 	public void create() {
@@ -108,6 +110,8 @@ public class Rhythmus implements ApplicationListener {
 			break;
 		case SCENE_RESULT:
 			sResult.draw(batch);
+			break;
+		case SCENE_EDIT:
 			break;
 		}
 		batch.end();

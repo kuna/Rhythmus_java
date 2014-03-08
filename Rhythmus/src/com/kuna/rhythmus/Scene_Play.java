@@ -20,7 +20,7 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.kuna.rhythmus.score.ScoreData;
 
-public class Scene_Play {
+public class Scene_Play implements Scene {
 	// const
 	public final static int JUDGE_PGREAT = 1;
 	public final static int JUDGE_GREAT = 2;
@@ -116,6 +116,9 @@ public class Scene_Play {
 	// touch
 	private boolean[] touch = new boolean [8];
 	
+	private boolean initalized = false;
+
+	@Override
 	public void init() {
 		score = 0;
 		pg=gr=gd=bd=pr=0;
@@ -232,6 +235,8 @@ public class Scene_Play {
 		// set input listener
 		pl = new PlayInputListener();
 		Gdx.input.setInputProcessor(pl);
+		
+		initalized = true;
 	}
 	
 	private void init_Mobile() {
@@ -397,8 +402,11 @@ public class Scene_Play {
 		s_lain.setPosition(wid_start, bottompos);
 		
 	}
-	
+
+	@Override
 	public void draw(SpriteBatch batch) {
+		if (!initalized) return;
+		
 		// get touch input
 		getTouchInput();
 		
@@ -1042,7 +1050,8 @@ public class Scene_Play {
 		Gdx.input.setInputProcessor(null);
 		if (v == 1) sButton.play();
 	}
-	
+
+	@Override
 	public void dispose() {
 		if (t_bom != null) t_bom.dispose();
 		if (t_play != null) t_play.dispose();

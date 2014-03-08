@@ -33,6 +33,8 @@ public class Scene_Result {
 	private Sound sClear;
 	private Sound sFail;
 	
+	private boolean initalized = false;
+	
 	public void init() {
 		// update score
 		s = new ScoreData();
@@ -95,9 +97,13 @@ public class Scene_Result {
 		
 		time_end = 0;
 		time_init = TimeUtils.millis();
+		
+		initalized = true;
 	}
 	
 	public void draw(SpriteBatch batch) {
+		if (!initalized) return;
+		
 		time_now = TimeUtils.millis();
 		float rate = s.getRate();
 		

@@ -40,7 +40,7 @@ public class BMSParser {
 	public double[] str_bpm = new double[1322];
 	public double[] str_stop = new double[1322];
 	public boolean[] LNObj = new boolean[1322];
-	public double[] length_beat = new double[65536];		// MAXIMUM_BEAT
+	public double[] length_beat = new double[1024];		// MAXIMUM_BEAT
 	public List<BMSKeyData> bmsdata = new ArrayList<BMSKeyData>();	// MAXIMUM_OBJECT (Trans object+hit object+STOP+BPM)
 	public List<BMSKeyData> bgadata = new ArrayList<BMSKeyData>();	// BGA
 	public List<BMSKeyData> bgmdata = new ArrayList<BMSKeyData>();	// BGM

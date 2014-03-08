@@ -58,7 +58,7 @@ public class SelectInputListener implements InputProcessor {
 		// check out button press
 		if (screenX > 116 && screenX < 156) {
 			if (screenY > 280 && screenY < 340) {
-					Rhythmus.sSelect.buttonPress(7);
+				Rhythmus.sSelect.buttonPress(7);
 			} else if (screenY > 222) {
 				Rhythmus.sSelect.buttonPress(5);
 			} else if (screenY > 164) {

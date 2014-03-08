@@ -25,7 +25,7 @@ import com.kuna.rhythmus.score.ScoreData;
 // 4. JUDGE ASSIST TIME
 // 5. (Button) Play / Autoplay
 
-public class Scene_Select {
+public class Scene_Select implements Scene {
 	private Texture select;
 	private BitmapFont font;
 	private SelectInputListener sl;
@@ -60,6 +60,9 @@ public class Scene_Select {
 	private Sound snd_select, snd_decide, snd_scratch;
 	private Sound snd_btn;
 	
+	private boolean initalized = false;
+
+	@Override
 	public void init() {
 		// init vars
 		Settings.autoplay = 0;
@@ -142,9 +145,14 @@ public class Scene_Select {
 		
 		// play BGM
 		playSound();
+		
+		initalized = true;
 	}
-	
+
+	@Override
 	public void draw(SpriteBatch batch) {
+		if (!initalized) return;
+		
 		// draw select background
 		s_bg.draw(batch);
 		batch.setBlendFunction(GL20.GL_SRC_COLOR, GL20.GL_ONE);
@@ -471,12 +479,13 @@ public class Scene_Select {
 			}
 		}, 0, 0.02f);
 	}
-	
+
+	@Override
 	public void dispose() {
-		timer.stop();
-		select.dispose();
-		fadeoutRenderer.dispose();
-		snd_select.dispose();
-		snd_decide.dispose();
+		if (timer != null) timer.stop();
+		if (select != null) select.dispose();
+		if (fadeoutRenderer != null) fadeoutRenderer.dispose();
+		if (snd_select != null) snd_select.dispose();
+		if (snd_decide != null) snd_decide.dispose();
 	}
 }
