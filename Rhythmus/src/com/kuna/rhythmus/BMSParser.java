@@ -44,6 +44,7 @@ public class BMSParser {
 	public List<BMSKeyData> bmsdata = new ArrayList<BMSKeyData>();	// MAXIMUM_OBJECT (Trans object+hit object+STOP+BPM)
 	public List<BMSKeyData> bgadata = new ArrayList<BMSKeyData>();	// BGA
 	public List<BMSKeyData> bgmdata = new ArrayList<BMSKeyData>();	// BGM
+	public List<BMSLNKeyData> lndata = new ArrayList<BMSLNKeyData>();
 	public int notecnt;
 	public double time;
 	private int LNType;
