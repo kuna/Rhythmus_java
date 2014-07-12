@@ -27,7 +27,7 @@ public class Scene_Play_BGA implements Scene_Interface {
 	}
 	
 	public void miss() {
-		missTime = (int) TimeUtils.millis();
+		missTime = nowTime;
 	}
 	
 	@Override

@@ -84,6 +84,9 @@ public class Rhythmus implements ApplicationListener {
 		dbatch = new DecalBatch(new CameraGroupStrategy(Rhythmus.cam));
 		//d_note = Decal.newDecal(1, 1, new TextureRegion(new Texture(Gdx.files.internal("data/play.png")), 0, 305, 30, 6), true);
 		//d_note.setScale(1.0f, 1.0f);
+		
+		// load sound resource
+		Common.loadCommonSound();
         
 		// Load BMS List
 		bmsList = new BMSList();
@@ -124,6 +127,7 @@ public class Rhythmus implements ApplicationListener {
 		bmsList.SaveBMSCache();
 		
 		// memory release
+		Common.disposeCommonSound();
 		BMSResource.dispose();
 		sSelect.dispose();
 		sDecide.dispose();

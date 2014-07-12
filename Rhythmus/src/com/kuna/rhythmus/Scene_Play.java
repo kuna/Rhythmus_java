@@ -38,8 +38,6 @@ public class Scene_Play implements Scene {
 	private Sprite s_btn_exit;
 	private Sprite s_progress;
 	
-	private static Sound sButton;
-	
 	private BitmapFont font;
 	
 	
@@ -165,9 +163,6 @@ public class Scene_Play implements Scene {
 			}
 		});
 		fade.doFadeIn();
-		
-		// load sound
-		sButton = Gdx.audio.newSound(Gdx.files.internal("data/change.wav"));
 		
 		// set input listener
 		pl = new PlayInputListener();
@@ -446,7 +441,8 @@ public class Scene_Play implements Scene {
 		fade.doFadeOut();
 		exitmode = v;
 		Gdx.input.setInputProcessor(null);
-		if (v == 1) sButton.play();
+		if (v == 1)
+			Common.snd_button.play();
 	}
 	
 	private static BMSKeyData getLastValidKey(int key) {
@@ -499,13 +495,12 @@ public class Scene_Play implements Scene {
 	public void dispose() {
 		if (t_bom != null) t_bom.dispose();
 		if (t_play != null) t_play.dispose();
-		if (sButton != null) sButton.dispose();
 	}
 	
 	public void changeSpeed(float newSpeed) {
 		if (newSpeed <= 0) return;
 		Settings.speed = newSpeed;
-		sButton.play();
+		Common.snd_button.play();
 		spNote.setSpeed(Settings.speed);
 	}
 }

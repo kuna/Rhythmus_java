@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.kuna.rhythmus.bmsdata.BMSData;
 import com.kuna.rhythmus.bmsdata.BMSUtil;
+import com.kuna.rhythmus.data.Common;
 import com.kuna.rhythmus.score.ScoreData;
 
 // OPTIONS
@@ -52,9 +53,6 @@ public class Scene_Select implements Scene {
 	private BMSList bmsList;
 	private Timer timer;
 	
-	private Sound snd_select, snd_decide, snd_scratch;
-	private Sound snd_btn;
-	
 	Scene_Select_List ssList;
 	Scene_FadeInOut fade;
 	int exitMode;		// exitmode 1: decide, 2: keysetting
@@ -65,12 +63,6 @@ public class Scene_Select implements Scene {
 	public void init() {
 		// init vars
 		Settings.autoplay = false;
-		
-		// load sound
-		snd_select = Gdx.audio.newSound(Gdx.files.internal("data/select.ogg"));
-		snd_decide = Gdx.audio.newSound(Gdx.files.internal("data/decide.ogg"));
-		snd_scratch = Gdx.audio.newSound(Gdx.files.internal("data/scratch.wav"));
-		snd_btn = Gdx.audio.newSound(Gdx.files.internal("data/change.wav"));
 		
 		// load textures
 		select = new Texture(Gdx.files.internal("data/select.png"));
@@ -280,7 +272,7 @@ public class Scene_Select implements Scene {
 				selIndex += bmsList.bmsArr.size();
 			
 			if ((int)_selIndex != (int)selIndex) {
-				snd_scratch.play();
+				Common.snd_scratch.play();
 			}
 			_selIndex = selIndex;
 		} else {
@@ -301,7 +293,8 @@ public class Scene_Select implements Scene {
 	}
 	
 	public void playSound() {
-		snd_select.play();
+		long id = Common.snd_select.play();
+		Common.snd_select.setLooping(id, true);
 	}
 	
 	private int bmsKeyIndex;
@@ -351,13 +344,13 @@ public class Scene_Select implements Scene {
 			break;
 		}
 		
-		snd_btn.play();
+		Common.snd_button.play();
 	}
 	
 	public void selectMusic() {
 		// stop bgm
-		snd_select.stop();
-		snd_decide.play();
+		Common.snd_select.stop();
+		Common.snd_decide.play();
 		
 		// go to next scene (call fade)
 		exitMode = 1;
@@ -366,8 +359,8 @@ public class Scene_Select implements Scene {
 	
 	public void selectKeysetting() {
 		// stop bgm
-		snd_select.stop();
-		snd_btn.play();
+		Common.snd_select.stop();
+		Common.snd_button.play();
 		
 		// call fade
 		exitMode = 2;
@@ -378,7 +371,5 @@ public class Scene_Select implements Scene {
 	public void dispose() {
 		if (timer != null) timer.stop();
 		if (select != null) select.dispose();
-		if (snd_select != null) snd_select.dispose();
-		if (snd_decide != null) snd_decide.dispose();
 	}
 }

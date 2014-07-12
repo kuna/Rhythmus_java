@@ -1,6 +1,7 @@
 package com.kuna.rhythmus;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -66,18 +67,23 @@ public class BMSArchive {
 			return null;
 		
 		List<String> paths = new ArrayList<String>();
-        for (Enumeration e = currentZip.entries(); e.hasMoreElements(); ) {
-            ZipEntry entry = (ZipEntry) e.nextElement();
+		try {
+	        for (Enumeration e = currentZip.entries(); e.hasMoreElements(); ) {
+	            ZipEntry entry = (ZipEntry) e.nextElement();
 
-            String currentEntry = entry.getName();
+	            String currentEntry = entry.getName();
 
-            if (!entry.isDirectory() && 
-            		(currentEntry.endsWith(".bme") || currentEntry.endsWith(".bms") || currentEntry.endsWith(".bml"))) {
-            	paths.add(getArchiveName(path) + "|" + currentEntry);
-            }
-        }
-        
-        return paths;
+	            if (!entry.isDirectory() && 
+	            		(currentEntry.endsWith(".bme") || currentEntry.endsWith(".bms") || currentEntry.endsWith(".bml"))) {
+	            	paths.add(getArchiveName(path) + "|" + currentEntry);
+	            }
+	        }
+	        
+	        return paths;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	public static InputStream getInputStream(String path) {
@@ -142,7 +148,14 @@ public class BMSArchive {
 	
 	public static byte[] loadBytesFromInputStream(InputStream is) {
 		try {
-			byte[] bytes = IOUtils.readFully(is, -1, true);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			int next = is.read();
+			while (next > -1) {
+			    bos.write(next);
+			    next = is.read();
+			}
+			bos.flush();
+			byte[] bytes = bos.toByteArray();
 			return bytes;
 		} catch (Exception e) {
 			e.printStackTrace();
