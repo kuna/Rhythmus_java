@@ -82,7 +82,7 @@ How to Use
 
 Sample Play Movie
 ---------------
-[![preview](http://img.youtube.com/vi/4MdO0EMgbiY/0.jpg)](http://www.youtube.com/watch?v=4MdO0EMgbiY)
+[![preview](http://img.youtube.com/vi/_J1FsTLA7bE/0.jpg)](http://www.youtube.com/watch?v=_J1FsTLA7bE)
 
 
 Tip
