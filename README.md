@@ -80,6 +80,11 @@ How to Use
 3. 마음껏 플레이 합니다!
 
 
+Sample Play Movie
+---------------
+[![preview](http://img.youtube.com/vi/4MdO0EMgbiY/0.jpg)](http://www.youtube.com/watch?v=4MdO0EMgbiY)
+
+
 Tip
 ---------------
 
