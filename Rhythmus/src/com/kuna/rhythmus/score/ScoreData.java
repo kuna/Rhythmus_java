@@ -17,9 +17,11 @@ public class ScoreData {
 	public int gd;
 	public int pr;
 	public int bd;
+	public int key;
+	public boolean save = false;	// used when check whether to be saved
 	
 	public String createData() {
-		return String.format("%s,,%d,,%d,,%d,,%d,,%d,,%d,,%d,,%d\n", hash,note,pg,gr,gd,pr,bd,combo,clear);
+		return String.format("%s,,%d,,%d,,%d,,%d,,%d,,%d,,%d,,%d,,%d\n", hash,note,pg,gr,gd,pr,bd,combo,clear,key);
 	}
 	
 	public void readData(String d) {
@@ -33,6 +35,7 @@ public class ScoreData {
 		bd = Integer.parseInt(_d[6]);
 		combo = Integer.parseInt(_d[7]);
 		clear = Integer.parseInt(_d[8]);
+		key = Integer.parseInt(_d[9]);
 	}
 	
 	public void readData(byte[] b) {

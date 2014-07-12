@@ -11,7 +11,7 @@ public class ResultInputListener implements InputProcessor {
 
 	@Override
 	public boolean keyUp(int keycode) {
-		Rhythmus.sResult.exitResult();
+		Rhythmus.sResult.fade.doFadeOut();
 		return false;
 	}
 
@@ -29,7 +29,7 @@ public class ResultInputListener implements InputProcessor {
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		Rhythmus.sResult.exitResult();
+		Rhythmus.sResult.fade.doFadeOut();
 		return false;
 	}
 

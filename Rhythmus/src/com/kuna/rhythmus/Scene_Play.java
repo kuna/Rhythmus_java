@@ -1,6 +1,7 @@
 package com.kuna.rhythmus;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
@@ -13,224 +14,160 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
+import com.kuna.rhythmus.bmsdata.BMSKeyData;
+import com.kuna.rhythmus.bmsdata.BMSUtil;
+import com.kuna.rhythmus.data.Common;
 import com.kuna.rhythmus.score.ScoreData;
 
 public class Scene_Play implements Scene {
-	// const
-	public final static int JUDGE_PGREAT = 1;
-	public final static int JUDGE_GREAT = 2;
-	public final static int JUDGE_GOOD = 3;
-	public final static int JUDGE_BAD = 4;
-	public final static int JUDGE_POOR = 5;
-	
-	
 	// texture & sprite
 	private Texture t_play;
 	private Texture t_bom;	// 16 frame, 240, 200
-	
-	private Sprite s_lain;
-	private Sprite s_note_scr;
-	private Sprite s_note1;
-	private Sprite s_note2;
-	private Sprite[] s_bom = new Sprite[16];
-	private Sprite s_effect1;
-	private Sprite s_effect2;
-	private Sprite s_effect3;
-	private Sprite[] judgespr = new Sprite[10];
-	private Sprite[] judgenum = new Sprite[40];
-	private Sprite s_white;
-	private Sprite s_prs_normal;
-	private Sprite s_prs_press;
+
+	// buttons
 	private Sprite s_btn_up;
 	private Sprite s_btn_down;
-	private Sprite s_btn_exit;
-	private Sprite s_guage_hard;
-	private Sprite s_guage_normal;
-	private Sprite s_black;
 	
-	private Sound sButton;
+	// lain, guage, etc.
+	private Sprite s_btn_exit;
+	private Sprite s_progress;
+	
+	private static Sound sButton;
 	
 	private BitmapFont font;
-	private ShapeRenderer r;
 	
-	private int[] noteX = new int[20];
-	private int[] noteWidth = new int[8];
-	private int noteHeight;
-	private Sprite[] noteSprite = new Sprite[8];
-	private int bomOffsetX, bomOffsetY;
-	private long[] bomTime = new long[10];	// when bom started?
-	private long[] pressTime = new long[10];	// when last pressed?
-	private long missTime;
-	private int[] effectWidth = new int[3];
-	private int effectHeight;
-	private int leftPos, rightPos, lainWidth;
-	private int[] notePress = new int[8];
-	private BMSKeyData[] longnotePressData = new BMSKeyData[8];
-	private int[] longnotePress = new int[8];
-	private int[] longnoteJudge = new int[8];
-	private float[] longnoteBeat = new float[8];
-	private int lainheight = 480;
-	private int bottompos = 0;
-	private int prs_left;
-	private int[] prs_width = new int[8];
-	private int prs_height;
-	private Sprite bga_miss = null;
-	private Sprite bga_now = null;
-	private Sprite bga_overlay = null;
-	private int[] keyindex = {6,1,2,3,4,5,8,9};
-	private int[] keyindex2 = {-1,1,2,3,4,5,0,-1,6,7};
+	
+	// for keyboard event / LN
+	private static int[] notePress = new int[17];
+	private static BMSKeyData[] longnotePressData = new BMSKeyData[17];
+	public static int[] longnotePress = new int[17];
+	private static int[] longnoteJudge = new int[17];
+	private static float[] longnoteBeat = new float[17];
+	
+	private int screenHeight = 480;	// TODO need to process ...?
 	
 	PlayInputListener pl;
 	
-	// bms
-	private double beat = 0;
-	private double bpm = 0;
-	public int pg=0;
-	public int gr=0;
-	public int gd=0;
-	public int pr=0;
-	public int bd=0;
-	public int maxcombo=0;
-	public int combo=0;
-	public int score = 0;
-	private int judge=0;
-	public float guage;
+	// timer & beat
+	public static long startTime;
+	public static long nowTime;
+	public static int eclipsedTime;
+	public static double nowBeat;
 	
-	public float speed = 3;
-	private int judgetime = Settings.JUDGE_EASY;
-	public int autoplay = 0;
-	public int exitmode = 0;	// 0 is normal, 1 is interrupted(cancel), 2 is failed
+	public static int exitmode = 0;	// 0 is normal, 1 is interrupted(cancel), 2 is failed
 	
-	// timer
-	private long startTime;
-	private long nowTime;
-	private int eclipsedTime;
-	private long judgeTime;
-	private long forceexittime;
-	
-	// touch
-	private boolean[] touch = new boolean [8];
+	// Scene_Play elements
+	static Scene_Play_Note spNote;
+	static Scene_Play_Judge spJudge;
+	static Scene_Play_Guage spGuage;
+	static Scene_Play_BGA spBGA;
+	static Scene_Play_Lain spLain;
+	static Scene_FadeInOut fade;
+	static Scene_Play_FullCombo fullcombo;
+	static Scene_Play_3DNote sp3DNote;
+	static Scene_Play_3DLain sp3DLain;
 	
 	private boolean initalized = false;
+	private List<BMSKeyData> bpms;
+	
+	public Scene_Play() {
+		notePress = new int[17];
+		longnotePressData = new BMSKeyData[17];
+		longnotePress = new int[17];
+		longnoteJudge = new int[17];
+		longnoteBeat = new float[17];
+	}
 
 	@Override
 	public void init() {
-		score = 0;
-		pg=gr=gd=bd=pr=0;
 		eclipsedTime = 0;
-		
-		switch (Settings.guagemode) {
-		case Settings.GUAGE_EASY:
-		case Settings.GUAGE_GROOVE:
-			guage = 20;
-			break;
-		case Settings.GUAGE_HARD:
-			guage = 100;
-			break;
-		}
-		
-		switch (Rhythmus.bmsParser.rank) {
-		case 0:	// VERY HARD
-			judgetime = Settings.JUDGE_VERYHARD;
-			break;
-		case 1:
-			judgetime = Settings.JUDGE_HARD;
-			break;
-		case 2:
-			judgetime = Settings.JUDGE_NORMAL;
-			break;
-		case 3:
-			judgetime = Settings.JUDGE_EASY;
-			break;
-		}
+		exitmode = 0;
+		startTime = 0;
+
+		bpms = BMSUtil.ExtractChannel(Rhythmus.bmsData.bmsdata, 3);	// bpm channel
 		
 		t_play = new Texture(Gdx.files.internal("data/play.png"));
 		t_bom = new Texture(Gdx.files.internal("data/bom.png"));
-		TextureRegion region;
 		font = new BitmapFont();
-		
-		// 
-		region = new TextureRegion(t_play, 764, 267, 260, 2);
-		s_lain = new Sprite(region);
-		s_white = new Sprite(new TextureRegion(t_play, 764, 267, 2, 2));
 
-		region = new TextureRegion(t_play, 0, 264, 53, 8);
-		s_note_scr = new Sprite(region);
-		region = new TextureRegion(t_play, 0, 273, 30, 8);
-		s_note1 = new Sprite(region);
-		region = new TextureRegion(t_play, 0, 282, 23, 8);
-		s_note2 = new Sprite(region);
-		noteSprite[0] = s_note_scr;
-		noteSprite[1] = noteSprite[3] = noteSprite[5] = noteSprite[7] = s_note1;
-		noteSprite[2] = noteSprite[4] = noteSprite[6] = s_note2;
+		// do player setting
+		Scene_Play_Setting.setKeyMode();
 
-		region = new TextureRegion(t_play, 0, 0, 29, 255);
-		s_effect1 = new Sprite(region);
-		region = new TextureRegion(t_play, 31, 0, 17, 255);
-		s_effect2 = new Sprite(region);
-		region = new TextureRegion(t_play, 49, 0, 13, 255);
-		s_effect3 = new Sprite(region);
-
-		s_prs_press = new Sprite(new TextureRegion(t_play, 0, 340, 31, 40));
-		s_prs_normal = new Sprite(new TextureRegion(t_play, 31, 340, 31, 40));
+		// button resources
 		s_btn_up = new Sprite(new TextureRegion(t_play, 453, 0, 55, 54));
+		s_btn_up.setSize(20, 20);
+		s_btn_up.setPosition(20, 440);
 		s_btn_down = new Sprite(new TextureRegion(t_play, 398, 0, 55, 54));
+		s_btn_down.setSize(20, 20);
+		s_btn_down.setPosition(20, 400);
 		s_btn_exit = new Sprite(new TextureRegion(t_play, 513, 0, 54, 54));
-		s_guage_normal = new Sprite(new TextureRegion(t_play, 63, 332, 15, 4));
-		s_guage_hard = new Sprite(new TextureRegion(t_play, 63, 336, 15, 4));
+		s_btn_exit.setSize(20, 20);
+		s_btn_exit.setPosition(760, 440);
+		s_progress = new Sprite(new TextureRegion(t_play, 18, 444, 14, 24));
 		
-		s_black = new Sprite(new TextureRegion(t_play, 1022, 1022, 2, 2));
-		s_black.setPosition(0, 0);
-		s_black.setSize(800, 480);
+		// create Scene_Play objects and initalize
+		fullcombo = new Scene_Play_FullCombo(t_play);
+		spNote = new Scene_Play_Note(screenHeight, t_play, t_bom, bpms);
+		spBGA = new Scene_Play_BGA(Scene_Play_Setting.BGADest[0], Scene_Play_Setting.BGADest[1], 
+				Scene_Play_Setting.BGADest[2], Scene_Play_Setting.BGADest[3]);
+		spJudge = new Scene_Play_Judge(t_play, spBGA, fullcombo, Scene_Play_Setting.JudgeDest[0], Scene_Play_Setting.JudgeDest[1], 
+				Scene_Play_Setting.JudgeScale);
+		spGuage = new Scene_Play_Guage(t_play, Scene_Play_Setting.GuageDest[0], Scene_Play_Setting.GuageDest[1], 
+				Scene_Play_Setting.GuageDest[2], Scene_Play_Setting.GuageDest[3]);
+		spLain = new Scene_Play_Lain(t_play, Scene_Play_Setting.drawLain);
+		sp3DNote = new Scene_Play_3DNote(t_play, t_bom, bpms);
+		sp3DLain = new Scene_Play_3DLain(t_play, Scene_Play_Setting.drawLain);
 		
-		// load bom
-		for (int i=0; i<16; i++) {
-			region = new TextureRegion(t_bom, 200*i, 0, 200, 240);
-			s_bom[i] = new Sprite(region);
+		// set default guage
+		switch (Settings.guagemode) {
+		case Settings.GUAGE_EASY:
+		case Settings.GUAGE_GROOVE:
+			spJudge.setGuage(20);
+			break;
+		case Settings.GUAGE_HARD:
+			spJudge.setGuage(100);
+			break;
 		}
-		for (int i=0; i<10; i++) {
-			pressTime[i] = bomTime[i] = -1000;	// initalization
-		}
 		
-		// load judge
-		judgespr[0] = new Sprite(new TextureRegion(t_play, 64, 1, 80, 33));		// PGREAT
-		judgespr[1] = new Sprite(new TextureRegion(t_play, 64, 36, 80, 33));	// PGREAT
-		judgespr[2] = new Sprite(new TextureRegion(t_play, 64, 71, 80, 33));	// PGREAT
-		judgespr[3] = new Sprite(new TextureRegion(t_play, 64, 107, 80, 33));	// GREAT
-		judgespr[4] = new Sprite(new TextureRegion(t_play, 71, 178, 60, 33));	// GOOD
-		judgespr[5] = new Sprite(new TextureRegion(t_play, 74, 214, 60, 33));	// POOR
-		judgespr[6] = new Sprite(new TextureRegion(t_play, 81, 250, 40, 33));	// BAD
-		int _top[] = {1, 36, 71, 107};
-		for (int i=0; i<4; i++) {
-			for (int j=0; j<10; j++) {
-				judgenum[i*10 + j] = new Sprite(new TextureRegion(t_play, 150+j*17, _top[i], 17, 33));
+		// fade inout
+		fade = new Scene_FadeInOut(new Handler() {
+			@Override
+			public void InformEvent(Object arg) {
+				// check out start time
+				if (Common.argPath != null)
+					startTime = TimeUtils.millis() - (int)(Rhythmus.bmsData.getTimeFromBeat(bpms, Common.argBeat)*1000);
+				else
+					startTime = TimeUtils.millis();
 			}
-		}
-		
-		switch (Settings.bmsmode) {
-		case Settings.MODE_MOBILE:
-			init_Mobile();
-			break;
-		case Settings.MODE_PAD:
-			init_Pad();
-			break;
-		case Settings.MODE_PC:
-			init_PC();
-			break;
-		}
-		
-		sButton = Gdx.audio.newSound(Gdx.files.internal("data/change.wav"));
+		}, new Handler() {
+			@Override
+			public void InformEvent(Object arg) {
+				// exit play
+				Rhythmus.bmsData.dispose();			// dispose data
+				BMSResource.dispose();
 
-		//ShapeRenderer
-		r = new ShapeRenderer();
+				// when exitOnEnd
+				if (Rhythmus.exitOnEnd) {
+					Gdx.app.exit();
+				}
+				
+				if (exitmode == 1) {		// cancel
+					Rhythmus.changeScene(Rhythmus.SCENE_SELECT);
+				} else if (exitmode >= 2) {	// failed or finished
+					Rhythmus.changeScene(Rhythmus.SCENE_RESULT);
+				}
+			}
+		});
+		fade.doFadeIn();
 		
-		// check out start time
-		startTime = TimeUtils.millis();
+		// load sound
+		sButton = Gdx.audio.newSound(Gdx.files.internal("data/change.wav"));
 		
 		// set input listener
 		pl = new PlayInputListener();
@@ -239,553 +176,79 @@ public class Scene_Play implements Scene {
 		initalized = true;
 	}
 	
-	private void init_Mobile() {
-		// default args for setting
-		// bottom pos (lain start)
-		bottompos = 80;
-		prs_height = bottompos;
-		lainheight = Rhythmus.SCREEN_HEIGHT - bottompos;
-		// note sizes (width)
-		int wid_scr = 130;
-		int wid_note1 = 80;
-		int wid_note2 = 62;
-		noteHeight = 20;
-		lainWidth = wid_scr+wid_note1*4+wid_note2*3;	// lain width
-		int wid_start = leftPos = (800-lainWidth)/2;	// lain X pos
-		rightPos = leftPos + lainWidth;					// lain end pos (X)
-		prs_left = 0;
-		for (int i=0; i<8; i++)							// press(bottom) X pos
-			prs_width[i] = 100;
-		
-		// set notes size
-		//s_note_scr.setSize(wid_scr, 20);
-		//s_note1.setSize(wid_note1, 20);
-		//s_note2.setSize(wid_note2, 20);
-
-		// set press effect size
-		effectWidth[0] = (int) wid_scr;
-		effectWidth[1] = (int) wid_note1;
-		effectWidth[2] = (int) wid_note2;
-		effectHeight = 400;
-		
-		// set size of prs
-		s_prs_normal.setSize(100, bottompos);
-		s_prs_press.setSize(100, bottompos);
-		
-		// set size & pos of up, down, exit
-		s_btn_up.setSize(40, 40);
-		s_btn_down.setSize(40, 40);
-		s_btn_exit.setSize(40, 40);
-		s_btn_up.setPosition(20, 400);
-		s_btn_down.setPosition(20, 320);
-		s_btn_exit.setPosition(740, 400);
-		
-		// set bom effect size
-		for (int i=0; i<16; i++) {
-			s_bom[i].scale(2);
-		}
-		bomOffsetX = -66;
-		bomOffsetY = -112;
-		
-		// set judge size
-		for (int i=0; i<=6; i++)
-			judgespr[i].scale(1);
-		for (int i=0; i<4; i++) {
-			for (int j=0; j<10; j++) {
-				judgenum[i*10 + j].scale(1);
-			}
-		}
-		
-		noteWidth[0] = wid_scr;
-		noteWidth[1] = noteWidth[3] = noteWidth[5] = noteWidth[7] = wid_note1;
-		noteWidth[2] = noteWidth[4] = noteWidth[6] = wid_note2;
-		
-		// set note's x pos
-		noteX[10] = noteX[6] = wid_start;
-		noteX[11] = noteX[1] = noteX[6] + wid_scr;
-		noteX[12] = noteX[2] = noteX[1] + wid_note1;
-		noteX[13] = noteX[3] = noteX[2] + wid_note2;
-		noteX[14] = noteX[4] = noteX[3] + wid_note1;
-		noteX[15] = noteX[5] = noteX[4] + wid_note2;
-		noteX[16] = noteX[8] = noteX[5] + wid_note1;
-		noteX[17] = noteX[9] = noteX[8] + wid_note2;
-
-		// set lain size
-		s_lain.setSize(lainWidth, lainheight);
-		s_lain.setPosition(wid_start, bottompos);
-	}
-	
-	private void init_Pad() {
-		// WILL NOT BE IMPLEMENTED ...
-		// mobile type 2
-		init_Mobile();
-		
-		prs_left = noteX[10];
-		for (int i=0; i<8; i++)
-			prs_width[i] = noteWidth[i];
-	}
-	
-	private void init_PC() {
-		// default args for setting
-		// bottom pos (lain start)
-		bottompos = 80;
-		lainheight = Rhythmus.SCREEN_HEIGHT - bottompos;
-		// note sizes (width)
-		int wid_scr = 72;
-		int wid_note1 = 42;
-		int wid_note2 = 34;
-		noteHeight = 12;
-		lainWidth = wid_scr+wid_note1*4+wid_note2*3;	// lain width
-		int wid_start = leftPos = 400;	// lain X pos
-		rightPos = leftPos + lainWidth;					// lain end pos (X)
-		
-		// set notes size
-		//s_note_scr.setSize(wid_scr, 12);
-		//s_note1.setSize(wid_note1, 12);
-		//s_note2.setSize(wid_note2, 12);
-
-		// set press effect size
-		effectWidth[0] = (int) wid_scr;
-		effectWidth[1] = (int) wid_note1;
-		effectWidth[2] = (int) wid_note2;
-		effectHeight = 400;
-		
-		// set size of prs
-		prs_height = 80;
-		s_prs_normal.setSize(50, prs_height);
-		s_prs_press.setSize(50, prs_height);
-		
-		// set size & pos of up, down, exit
-		s_btn_up.setSize(20, 20);
-		s_btn_down.setSize(20, 20);
-		s_btn_exit.setSize(20, 20);
-		s_btn_up.setPosition(20, 420);
-		s_btn_down.setPosition(20, 340);
-		s_btn_exit.setPosition(760, 440);
-		
-		// set bom effect size
-		for (int i=0; i<16; i++) {
-			s_bom[i].scale(1);
-		}
-		bomOffsetX = -76;
-		bomOffsetY = -120;
-		
-		// set judge size
-		for (int i=0; i<=6; i++)
-			judgespr[i].scale(0.8f);
-		for (int i=0; i<4; i++) {
-			for (int j=0; j<10; j++) {
-				judgenum[i*10 + j].scale(0.8f);
-			}
-		}
-		
-		noteWidth[0] = wid_scr;
-		noteWidth[1] = noteWidth[3] = noteWidth[5] = noteWidth[7] = wid_note1;
-		noteWidth[2] = noteWidth[4] = noteWidth[6] = wid_note2;
-		
-		// set note's x pos
-		noteX[10] = noteX[6] = wid_start;
-		noteX[11] = noteX[1] = noteX[6] + wid_scr;
-		noteX[12] = noteX[2] = noteX[1] + wid_note1;
-		noteX[13] = noteX[3] = noteX[2] + wid_note2;
-		noteX[14] = noteX[4] = noteX[3] + wid_note1;
-		noteX[15] = noteX[5] = noteX[4] + wid_note2;
-		noteX[16] = noteX[8] = noteX[5] + wid_note1;
-		noteX[17] = noteX[9] = noteX[8] + wid_note2;
-		
-		prs_left = wid_start;
-		for (int i=0; i<8; i++)
-			prs_width[i] = noteWidth[i];
-
-		// set lain size
-		s_lain.setSize(lainWidth, lainheight);
-		s_lain.setPosition(wid_start, bottompos);
-		
-	}
-
 	@Override
-	public void draw(SpriteBatch batch) {
+	public void draw(SpriteBatch batch, DecalBatch dbatch) {
 		if (!initalized) return;
+
+		batch.begin();
 		
 		// get touch input
-		getTouchInput();
+		PlayInputListener.getTouchInput();
 		
-		// update time
+		// update time & beat
 		nowTime = TimeUtils.millis();
 		eclipsedTime = (int) (nowTime - startTime);
+		if (startTime == 0)
+			eclipsedTime = 0;
+		nowBeat = Rhythmus.bmsData.getBeatFromTime(eclipsedTime);
 		
-		// draw ui
-		s_lain.draw(batch);
+		// draw interfaces
+		drawInterface(batch);
 		
-		switch (Settings.bmsmode) {
-		case Settings.MODE_MOBILE:
-			drawInterface_Mobile(batch);
-			break;
-		case Settings.MODE_PAD:
-			drawInterface_Pad(batch);
-			break;
-		case Settings.MODE_PC:
-			drawInterface_PC(batch);
-			break;
+		// draw how much played (song progress)
+		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+		int s_progress_height = Scene_Play_Setting.getLainHeight() - 120;
+		int s_progress_bottom = Scene_Play_Setting.getLainBottom();
+		s_progress.setPosition(20, (float) (s_progress_bottom + s_progress_height*(1 - eclipsedTime/1000.0/Rhythmus.bmsData.time)));
+		s_progress.draw(batch);
+		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		
+		// if autoplay then release key
+		if (Settings.autoplay) {
+			for (int i=1; i<=16; i++)
+				if (notePress[i] > 0 && longnotePress[i] == 0)
+					releaseNote(i);
 		}
+		
+		batch.end();
+		
+		// fade
+		fade.draw(batch);
+
+		/* process part */
+		// is guage bad? then go to result screen
+		if (spJudge.getGuage() == 0.0 && Settings.guagemode == Settings.GUAGE_HARD && exitmode == 0) {
+			exitGame(2);
+		}
+		
+		// check is song finished
+		if (eclipsedTime > Rhythmus.bmsData.time*1000 + 3000 && exitmode == 0) {
+			exitGame(3);
+		}
+		
+		// process miss note
+		checkBadNote();
 		
 		// play BGM
-		double bgmBeat = Rhythmus.bmsParser.getBeatFromTime(eclipsedTime + Settings.judgetime);
-		for (int i=0; i<Rhythmus.bmsParser.bgmdata.size(); i++) {
-			BMSKeyData d = Rhythmus.bmsParser.bgmdata.get(i);
-			if (d.beat > bgmBeat)
-				break;
-			if (d.key == 1) {
-				if (d.attr == 0) {
-					BMSData.playSound((int) d.value);
-					d.attr = 1;
-				}
-			}
-		}
-		
-		// fadeout on Force exit
-		Gdx.gl.glEnable(GL10.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-		if (exitmode > 0) {
-			float a =  ((float)(nowTime - forceexittime) / 1000);
-			if (a>1) {
-				a=1;
-				
-				if (exitmode == 1) {		// cancel
-					Rhythmus.changeScene(Rhythmus.SCENE_SELECT);
-				} else if (exitmode == 2) {	// failed
-					Rhythmus.changeScene(Rhythmus.SCENE_RESULT);
-				}
-			}
-
-			s_black.draw(batch, a);
-			return;	/*** DONT GO ON! IMPORTANT ***/
-		}
-		
-		// screen fadeout
-		if (eclipsedTime > Rhythmus.bmsParser.time*1000 +1000) {
-			float a = (float) ((eclipsedTime - Rhythmus.bmsParser.time*1000 -1000) / 1000);
-			if (a>1) {
-				a=1;
-				Rhythmus.changeScene(Rhythmus.SCENE_RESULT);
-			}
-			
-			s_black.draw(batch, a);
-		}
-		Gdx.gl.glDisable(GL10.GL_BLEND);
+		playBGM();
 	}
 
-	private void drawInterface_Mobile(SpriteBatch batch) {
-		// draw note from eclipsedTime
-		beat = Rhythmus.bmsParser.getBeatFromTime(eclipsedTime);
-		bpm = Rhythmus.bmsParser.getBPMFromBeat(beat);
-		
-		float pos = bottompos;
-		double _beat = beat;
-		double _bpm = bpm;
-		float[] longnotePos = new float[8];
-		int[] longnoteIndex = new int[8];
-		int[] longnoteStatus = new int[8];
-		for (int i=0; i<8; i++) {
-			longnotePos[i] = bottompos;
-			longnoteIndex[i] = -1;
-		}
-		
-		for (int i=0; i<Rhythmus.bmsParser.bmsdata.size(); i++) {
-			BMSKeyData d = Rhythmus.bmsParser.bmsdata.get(i);
-			if (d.beat >= _beat) {
-				// check beat (line drawing)
-				while (d.beat > (int)_beat+1) {
-					pos += ((int)(_beat+1) - _beat) * speed * _bpm * Rhythmus.bmsParser.length_beat[(int)_beat]
-							* lainheight/200;
-					_beat = (int)_beat+1;
+	private void drawInterface(SpriteBatch batch) {
+		spBGA.draw(batch);
 
-					s_white.setPosition(leftPos, pos);
-					s_white.draw(batch, 0.5f);
-				}
-				
-				// calc pos
-				pos += (d.beat - _beat) * speed * _bpm * Rhythmus.bmsParser.length_beat[(int)d.beat]
-						* lainheight/200;
-				_beat = d.beat;
-				
-				// draw line(2) -- when beat%1 == 0
-				if (d.beat%1==0)
-				{
-					s_white.setPosition(leftPos, pos);
-					s_white.draw(batch, 0.5f);
-				}
-				
-				// check type
-				if (d.key == 9)								// STOP -----------------------
-				{
-					continue;
-				}
-				if (d.key == 3 || d.key == 8) {				// BPM ------------------------
-					_bpm = d.value;
-				} else if (d.key > 10 && d.key<20) {		// normal NOTE ----------------
-					Sprite s = noteSprite[ keyindex2[d.key%10] ];
-					s.setSize(noteWidth[ keyindex2[d.key%10] ], noteHeight);
-					s.setX(noteX[d.key%10]);
-					s.setY(pos);
-					
-					if (d.attr == 0) {			// attr==0 is drawable object
-						s.draw(batch);
-					}
-				} else if (d.key > 50 && d.key < 60) {		// LONGNOTE -------------------
-					int lindex = keyindex2[d.key%10];
-					if (d.attr < 4) {
-						// LONGNOTE START
-						longnotePos[lindex] = pos;
-						longnoteIndex[lindex] = i;
-						longnoteStatus[lindex] = d.attr;
-					} else if (d.attr == 4 && longnoteIndex[lindex]>=0) {
-						// LONGNOTE END
-						Sprite s = noteSprite[ lindex ];
-						s.setSize(noteWidth[ lindex ], pos-longnotePos[lindex]);
-						s.setX(noteX[lindex+10]);
-						s.setY(longnotePos[lindex]);
-						if (longnoteStatus[lindex] == 0 || longnoteStatus[lindex] == 2) {
-							// draw normal longnote
-							s.draw(batch);
-						} else if (longnoteStatus[lindex] == 3) {
-							// draw failed longnote
-							s.draw(batch, 0.5f);
-						}
-
-						longnoteIndex[lindex] = -1;
-					}
-				}
-			} else {
-				/*** Smaller Beat then now (Delayed Beat) ***/
-				// when autoplay
-				if (autoplay > 0) {
-					if (d.attr == 0 && d.key>10 && d.key<20) {
-						pressNote( getKeyFromChannel(d.key) );
-						releaseNote( getKeyFromChannel(d.key) );
-					} else if (d.key > 50 && d.key<60) {
-						int lindex = keyindex2[d.key%10];
-						if (d.attr == 0 && longnotePress[lindex] == 0) {
-							pressNote( getKeyFromChannel(d.key) );
-						} else if (d.attr == 4 && longnotePress[lindex] > 0) {
-							releaseNote( getKeyFromChannel(d.key) );
-						}
-					}
-					/*BMSData.playSound((int) d.value);
-					judge(JUDGE_PGREAT);*/
-				} else {
-				}
-
-				if (d.attr == 0) {
-					// its a dropped note - check out missed note
-					if (eclipsedTime - d.time + Settings.judgetime > judgetime*8) {
-						if (d.key > 10 && d.key < 20) {
-							d.attr = 1;
-							judge(JUDGE_POOR);
-						}
-						if (d.key > 50 && d.key < 60) {
-							d.attr = 2;
-							judge(JUDGE_POOR);
-						}
-					} else {
-						// if delayed note then draw it
-						if (d.key > 10 && d.key < 20) {
-							// draw
-							Sprite s;
-							int spriteIndex = getKeyFromChannel(d.key);
-							s = noteSprite[spriteIndex%10];
-							s.setSize(noteWidth[ spriteIndex%10 ], noteHeight);
-							s.setX(noteX[spriteIndex%10+10]);
-							s.setY(bottompos);
-							s.draw(batch);
-						}
-					}
-				}
-				
-				if (d.key > 50 && d.key < 60) {
-					int lindex = keyindex2[d.key%10];
-					// if longnote is still pressed when press time is over
-					// then automatically put it up
-					if (d.attr == 4 && longnotePress[lindex] > 0) {
-						longnotePress[lindex] = 0;
-						judge(longnoteJudge[lindex]);
-					}
-					
-					// Check longnote
-					if (d.attr < 4) {
-						// LONGNOTE START
-						longnotePos[lindex] = pos;
-						longnoteIndex[lindex] = i;
-						longnoteStatus[lindex] = d.attr;
-					} else if (d.attr >= 4) {
-						// LONGNOTE END
-						longnoteIndex[lindex] = -1;
-						d.attr = 5;	// passed longnote
-					}
-				}
-			}
-			
-			if (pos > Rhythmus.SCREEN_HEIGHT)	// Out of screen
-				break;
-		}
+		spLain.draw(batch);
+		spNote.draw(batch);
 		
-		// if longnote exists then draw them
-		for (int i=0; i<8; i++) {
-			if (longnoteIndex[i] >= 0) {
-				Sprite s = noteSprite[i];
-				s.setSize(noteWidth[i], Rhythmus.SCREEN_HEIGHT-longnotePos[i]);
-				s.setX(noteX[i+10]);
-				s.setY(longnotePos[i]);
-				if (longnoteStatus[i] == 0 || longnoteStatus[i] == 2) {
-					// draw normal longnote
-					s.draw(batch);
-				} else if (longnoteStatus[i] == 3) {
-					// draw failed longnote
-					s.draw(batch, 0.5f);
-				}
-			}
-		}
+		//sp3DLain.draw(batch);
+		//sp3DNote.draw(batch);
 		
-		/*** START ALPHA(COLOR) BLENDING ***/
-		// draw press effect
-		batch.setBlendFunction(GL20.GL_SRC_COLOR, GL20.GL_ONE);
-		for (int i=0; i<8; i++) {
-			int t = (int) (nowTime - pressTime[i]);	// ** OVERFLOW CAN CAUSED **
-			if (notePress[i] > 0) t=0;
-			float a = (float)t/160;
-			
-			if (a<1 && a>=0) {
-				int org_w;
-				if (i==0) org_w = effectWidth[0];
-				else if (i%2 == 1) org_w = effectWidth[1];
-				else org_w = effectWidth[2];
-				int h = (int) ((float)effectHeight*(1 - 0.4f*a));
-				int w = (int) ((float)org_w*(1-a));
-				
-				int x = noteX[10+i] + (org_w-w)/2;
-				int y = bottompos;
-				
-				Sprite s;
-				if (i==0) s = s_effect1;
-				else if (i%2 == 1) s = s_effect2;
-				else s = s_effect3;
-				s.setPosition(x, y);
-				s.setSize(w, h);
-				s.draw(batch, 1-a);
-			}
-		}
+		fullcombo.draw(batch);
 		
-		// draw bom effect
-		for (int i=0; i<8; i++) {
-			int frame = (int) ((nowTime - bomTime[i])/20.0f);
-			// if longnote...?
-			if (longnotePress[i] == 1)
-				frame = (eclipsedTime%2==0)?2:6;
-			if (frame < 16 && frame >= 0) {
-				s_bom[frame].setX(noteX[10+i] + bomOffsetX);
-				s_bom[frame].setY(bottompos + bomOffsetY);
-				s_bom[frame].draw(batch);
-			}
-		}
+		spJudge.draw(batch);
 		
-		// draw judge
-		if (nowTime - judgeTime > 0 && nowTime - judgeTime < 3000) {
-			int t = (int) (nowTime - judgeTime);
-			
-			float judgeSize = 1.5f;
-			int w=0;
-			int y=(int) ((480+bottompos-33*judgeSize)/2);
-			if (judge == JUDGE_PGREAT || judge == JUDGE_GREAT || judge == JUDGE_GOOD) {
-				w = (int) judgespr[0].getWidth();
-				if (judge == JUDGE_GOOD)
-					w = (int) judgespr[4].getWidth();
-				w += 11;
-				w += 17 * Integer.toString(combo).length();
-			} else {
-				if (judge == JUDGE_POOR)
-					w = (int) judgespr[5].getWidth();
-				if (judge == JUDGE_BAD)
-					w = (int) judgespr[6].getWidth();
-			}
-			
-			//w *= judgeSize;
-			int x = leftPos + (lainWidth-w)/2;
-			int judgesprNum=-1;
-			if (judge == JUDGE_PGREAT) {
-				judgesprNum = t%3;
-			} else if (t%3 != 0) {
-				if (judge == JUDGE_GREAT)
-					judgesprNum = 3;
-				if (judge == JUDGE_GOOD)
-					judgesprNum = 4;
-				if (judge == JUDGE_POOR)
-					judgesprNum = 5;
-				if (judge == JUDGE_BAD)
-					judgesprNum = 6;
-			}
-			
-			if (judgesprNum >= 0 && judgesprNum <= 4) {
-				judgespr[judgesprNum].setX(x);
-				judgespr[judgesprNum].setY(y);
-				judgespr[judgesprNum].draw(batch);
-				x += judgespr[judgesprNum].getWidth()*judgeSize;
-				x += 11*judgeSize;
-				
-				ArrayList<Integer> arr = new ArrayList<Integer>();
-				for (int _combo=combo; _combo>0; _combo/=10) {
-					arr.add(_combo%10);
-				}
-				for (int i=arr.size()-1; i>=0; i--) {
-					int n = judgesprNum*10 + arr.get(i);
-					if (n >= 40) n-=10;
-					judgenum[n].setX(x);
-					judgenum[n].setY(y);
-					judgenum[n].draw(batch);
-					x += 17*judgeSize;
-				}
-			} else if (judgesprNum > 4) {
-				judgespr[judgesprNum].setX(x);
-				judgespr[judgesprNum].setY(y);
-				judgespr[judgesprNum].draw(batch);
-			}
-		}
+		spGuage.setGuage((int) spJudge.getGuage());
+		spGuage.draw(batch);
 		
-		// draw pression under bottom line
-		int p = prs_left;
-		for (int i=0; i<8; i++) {
-			Sprite s = s_prs_normal;
-			if (notePress[i] > 0) {
-				s = s_prs_press;
-			}
-			s.setPosition(p, bottompos-prs_height);
-			s.setSize(prs_width[i], prs_height); 
-			s.draw(batch);
-			p += prs_width[i];
-		}
-		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		/*** END ALPHA(COLOR) BLENDING ***/
-
-		// draw guage
-		for (int i=bottompos+10; i<bottompos+10+300; i+= 5)
-		{
-			Sprite s;
-			if (Settings.guagemode == Settings.GUAGE_HARD)
-				s = s_guage_hard;
-			else
-				s = s_guage_normal;
-			
-			s.setPosition(760, i);
-			
-			if (i > bottompos+10+300*guage/100)
-				s.draw(batch, 0.5f);
-			else
-				s.draw(batch);
-		}
-		
-		// draw bottom border line
-		s_white.setPosition(leftPos, bottompos);
-		s_white.setSize(lainWidth, 4);
-		s_white.draw(batch);
 		
 		// place buttons
 		s_btn_up.draw(batch);
@@ -793,129 +256,163 @@ public class Scene_Play implements Scene {
 		s_btn_exit.draw(batch);
 		
 		// infomation
-		ScoreData s = new ScoreData();
-		s.pg=pg; s.gr=gr; s.gd=gd; s.pr=pr; s.bd=bd;
+		ScoreData s = spJudge.getScoreData();
 		float rate;
 		if (s.getTotalNote() == 0) rate = 0;
 		else rate = (float)s.getEXScore()/(s.getTotalNote()*2);
 		String rate_str=ScoreData.GetRateString(rate);
+		
 		font.setColor(Color.WHITE);
-		font.draw(batch, String.format("BPM %.0f", bpm), 20, 100);
-		font.draw(batch, String.format("PG %d", pg), 20, 220);
-		font.draw(batch, String.format("GR %d", gr), 20, 200);
-		font.draw(batch, String.format("GD %d", gd), 20, 180);
-		font.draw(batch, String.format("PR %d", pr), 20, 160);
-		font.draw(batch, String.format("BD %d", bd), 20, 140);
+		font.draw(batch, String.format("BPM %.1f", Rhythmus.bmsData.getBPMFromBeat(nowBeat)), 20, 100);
+		font.draw(batch, String.format("PG %d", s.pg), 20, 220);
+		font.draw(batch, String.format("GR %d", s.gr), 20, 200);
+		font.draw(batch, String.format("GD %d", s.gd), 20, 180);
+		font.draw(batch, String.format("PR %d", s.pr), 20, 160);
+		font.draw(batch, String.format("BD %d", s.bd), 20, 140);
 		font.draw(batch, String.format("%s (%.0f)", rate_str, rate*100), 20, 260);
+		
+		/* debugging */
+		//font.draw(batch, String.format("%d, %f, %d", eclipsedTime, nowBeat, (int)(1000*Rhythmus.bmsData.getTimeFromBeat(bpms, nowBeat))), 50, 50);
 	}
-	private void drawInterface_Pad(SpriteBatch batch) {
-		// NEVER BE IMPLEMENTED ... NEVER...
-		drawInterface_Mobile(batch);
-	}
-	private void drawInterface_PC(SpriteBatch batch) {
-		// ADD: draw BG (7,6,4)
-		for (int i=0; i<Rhythmus.bmsParser.bgadata.size(); i++) {
-			BMSKeyData d = Rhythmus.bmsParser.bgadata.get(i);
-			if (d.beat > beat)
+	
+	// should be called every frame
+	public void playBGM() {
+		double bgmBeat = Rhythmus.bmsData.getBeatFromTime(eclipsedTime + Settings.judgetime);
+		for (int i=0; i<Rhythmus.bmsData.bgmdata.size(); i++) {
+			BMSKeyData d = Rhythmus.bmsData.bgmdata.get(i);
+			if (d.getBeat() > bgmBeat)
 				break;
-			if (d.attr == 0) {
-				Texture t;
-				if (d.key == 6) {
-					t = BMSData.bg[(int) d.value];
-					if (t != null) {
-						bga_miss = new Sprite(t);
-						bga_miss.setPosition(20, 60);
-						bga_miss.setSize(360, 360);
+			// bgm is always 1 so we dont check channel
+			if (d.getAttr() == 0) {
+				BMSResource.playSound((int) d.getValue());
+				d.setAttr(1);
+			}
+		}
+	}
+	
+	// should be called every frame
+	// + autoplay part
+	public void checkBadNote() {
+		for (int i=1; i<=16; i++) {
+			while (true) {
+				BMSKeyData bkd = getLastValidKey(i);
+				if (bkd == null)
+					break;
+
+				if (bkd.getTime() - eclipsedTime < -spJudge.getJudgeBADTime()) {
+					if (bkd.is1PLNChannel() || bkd.is2PLNChannel()) {
+						BMSKeyData bkd2 = Rhythmus.bmsData.getPairLN(bkd);
+						if (bkd2 == null) {
+							Gdx.app.log("ERROR", "UNEXPECTED");
+						}
+						bkd2.setAttr(2);	// failed
 					}
+					
+					if (bkd.is1PChannel() || bkd.is1PLNChannel())
+						spJudge.judge(Scene_Play_Judge.JUDGE_BAD, 1);
+					else if (bkd.is2PChannel() || bkd.is2PLNChannel())
+						spJudge.judge(Scene_Play_Judge.JUDGE_BAD, 2);
+					bkd.setAttr(1);
+					
+				} else {
+					if (Settings.autoplay && bkd.getTime() - eclipsedTime < 0)
+						pressNote(i);
+					break;
 				}
-				if (d.key == 7) {
-					t = BMSData.bg[(int) d.value];
-					if (t != null) {
-						bga_overlay = new Sprite(t);
-						bga_overlay.setPosition(20, 60);
-						bga_overlay.setSize(360, 360);
-					}
-				}
-				if (d.key == 4) {
-					t = BMSData.bg[(int) d.value];
-					if (t != null) {
-						bga_now = new Sprite(t);
-						bga_now.setPosition(20, 60);
-						bga_now.setSize(360, 360);
-					}
-				}
-				d.attr = 1;
 			}
 		}
 		
-		if (nowTime - missTime < 500 && bga_miss != null) {
-			bga_miss.draw(batch);
-		} else {
-			if (bga_now != null)
-				bga_now.draw(batch);
+		// find Last LN up key (in autoplay, releaseKey)
+		for (int i=1; i<=16; i++) {
+			while (true) {
+				BMSKeyData bkd = getLastValidReleaseKey(i);
+				if (bkd == null)
+					break;
+				if (bkd.getTime() - eclipsedTime < 0) {
+					// automatical release
+					bkd.setAttr(1);
+					
+					if (Settings.autoplay)
+						releaseNote(i);
+				} else {
+					// no more releaseable note
+					break;
+				}
+			}
 		}
-		
-		drawInterface_Mobile(batch);
 	}
 	
-	public void pressNote(int n) {
+	// attr 0 - nothing processed
+	// attr 1 - processed, not showing
+	// attr 2 - failed
+	// in case LN, first one means pressing, second one means drawing.
+	public static void pressNote(int n) {
 		if (n < 0) return;
 		if (notePress[n] > 0) return;
 		
 		notePress[n] = 1;
-		pressTime[n] = (int) TimeUtils.millis();
+		spNote.pressNote(n);
 		
-		BMSKeyData d = BMSUtil.getLastValidKey(Rhythmus.bmsParser, keyindex[n]);
+		BMSKeyData d = getLastValidKey(n);
 		
 		if (d != null) {
-			BMSData.playSound( (int) d.value );
+			BMSResource.playSound( (int) d.getValue() );
 			
-			if (d.key > 50 && d.key < 60) {
+			if (d.is1PLNChannel() || d.is2PLNChannel()) {
 				// only check bad timing on longnote press...
-				if (Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*4) {
+				if (Math.abs(d.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgeGOODTime()) {
 					// when its inside GOOD timing
 					// Long note pressed
 					longnotePress[n] = 1;
 					longnotePressData[n] = d;
-					longnoteBeat[n] = (float) d.beat;
+					longnoteBeat[n] = (float) d.getBeat();
 
-					if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime ) {
-						longnoteJudge[n] = JUDGE_PGREAT;
-					} else if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*2 ) {
-						longnoteJudge[n] = JUDGE_GREAT;
-					} else if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*4 ) {
-						longnoteJudge[n] = JUDGE_GOOD;
+					if ( Math.abs(d.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgePGREATTime() ) {
+						longnoteJudge[n] = Scene_Play_Judge.JUDGE_PGREAT;
+					} else if ( Math.abs(d.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgeGREATTime() ) {
+						longnoteJudge[n] = Scene_Play_Judge.JUDGE_GREAT;
+					} else if ( Math.abs(d.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgeGOODTime() ) {
+						longnoteJudge[n] = Scene_Play_Judge.JUDGE_GOOD;
 					}
-					d.attr = 2;
-				} else if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*6 ) {
-					judge(JUDGE_BAD);
-					d.attr = 3;
+
+					Gdx.app.log("LN", "OK");
+					d.setAttr(1);	// this note is already pressed so no more press available.
+				} else if ( Math.abs(d.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgeBADTime() ) {
+					spJudge.judge(Scene_Play_Judge.JUDGE_BAD, ((n>8)?2:1));
+					BMSKeyData d_ln = Rhythmus.bmsData.getPairLN(d);
+					if (d_ln != null) {
+						// failed
+						d_ln.setAttr(2);
+					}
+					d.setAttr(1);
 				}
 			} else {
 				// normal note pressed
-				if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime ) {
-					judge(JUDGE_PGREAT);
-					d.attr = 1;
-					bomTime[n] = TimeUtils.millis();
-				} else if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*2 ) {
-					judge(JUDGE_GREAT);
-					d.attr = 1;
-					bomTime[n] = TimeUtils.millis();
-				} else if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*4 ) {
-					judge(JUDGE_GOOD);
-					d.attr = 1;
-				} else if ( Math.abs(d.time - eclipsedTime + Settings.judgetime) < judgetime*6 ) {
-					judge(JUDGE_BAD);
-					d.attr = 1;
+				if ( Math.abs(d.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgePGREATTime() ) {
+					spJudge.judge(Scene_Play_Judge.JUDGE_PGREAT, ((n>8)?2:1));
+					d.setAttr(1);
+					spNote.setBom(n);
+				} else if ( Math.abs(d.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgeGREATTime() ) {
+					spJudge.judge(Scene_Play_Judge.JUDGE_GREAT, ((n>8)?2:1));
+					d.setAttr(1);
+					spNote.setBom(n);
+				} else if ( Math.abs(d.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgeGOODTime() ) {
+					spJudge.judge(Scene_Play_Judge.JUDGE_GOOD, ((n>8)?2:1));
+					d.setAttr(1);
+				} else if ( Math.abs(d.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgeBADTime() ) {
+					spJudge.judge(Scene_Play_Judge.JUDGE_BAD, ((n>8)?2:1));
+					d.setAttr(1);
 				}
 			}
 		}
 	}
 	
-	public void releaseNote(int n) {
+	public static void releaseNote(int n) {
 		if (n < 0) return;
+		if (notePress[n] == 0) return;
+		
 		notePress[n] = 0;
-		pressTime[n] = TimeUtils.millis();
+		spNote.releaseNote(n);
 		
 		// check long note
 		if (longnotePress[n] > 0) {
@@ -923,132 +420,79 @@ public class Scene_Play implements Scene {
 			BMSKeyData d = longnotePressData[n];
 			
 			// find end of the longnote
-			BMSKeyData end = null;
-			for (int i=0; i<Rhythmus.bmsParser.bmsdata.size(); i++) {
-				if (Rhythmus.bmsParser.bmsdata.get(i).beat < d.beat)
-					continue;
-				
-				if (Rhythmus.bmsParser.bmsdata.get(i).key == d.key && Rhythmus.bmsParser.bmsdata.get(i).attr == 4) {
-					end = Rhythmus.bmsParser.bmsdata.get(i);
-					break;
-				}
+			BMSKeyData end = Rhythmus.bmsData.getPairLN(d);
+			if (end == null) {
+				Gdx.app.log("LN", "ERROR rel");
+				return;
 			}
 			
-			if (end == null)
-				return;
-			
 			// you should not release it over GOOD timing
-			if ( Math.abs(end.time - eclipsedTime + Settings.judgetime) < judgetime*4 ) {
-				judge(longnoteJudge[n]);
-				d.attr = 2;
+			if ( Math.abs(end.getTime() - eclipsedTime + Settings.judgetime) < spJudge.getJudgeGOODTime() ) {
+				spJudge.judge(longnoteJudge[n], ((n>8)?2:1));
+				end.setAttr(1);
 			} else {
-				judge(JUDGE_BAD);
-				d.attr = 3;
+				spJudge.judge(Scene_Play_Judge.JUDGE_BAD, ((n>8)?2:1));
+				end.setAttr(2);
 			}
 			
 			longnotePress[n] = 0;
 		}
 	}
 	
-	public void judge(int num) {
-		switch(num){
-		case JUDGE_PGREAT:
-			switch (Settings.guagemode) {
-			case Settings.GUAGE_HARD:
-				guage += 0.1f;
-				break;
-			case Settings.GUAGE_GROOVE:
-				guage += 1.0f * ((float)Rhythmus.bmsParser.total/Rhythmus.bmsParser.notecnt);
-				break;
-			case Settings.GUAGE_EASY:
-				guage += 1.2f * ((float)Rhythmus.bmsParser.total/Rhythmus.bmsParser.notecnt);
-				break;
-			}
-			combo++;
-			pg++;
-			break;
-		case JUDGE_GREAT:
-			switch (Settings.guagemode) {
-			case Settings.GUAGE_HARD:
-				guage += 0.1f;
-				break;
-			case Settings.GUAGE_GROOVE:
-				guage += 1.0f * ((float)Rhythmus.bmsParser.total/Rhythmus.bmsParser.notecnt);
-				break;
-			case Settings.GUAGE_EASY:
-				guage += 1.2f * ((float)Rhythmus.bmsParser.total/Rhythmus.bmsParser.notecnt);
-				break;
-			}
-			combo++;
-			gr++;
-			break;
-		case JUDGE_GOOD:
-			switch (Settings.guagemode) {
-			case Settings.GUAGE_HARD:
-				guage += 0.05f;
-				break;
-			case Settings.GUAGE_GROOVE:
-				guage += 0.5f * ((float)Rhythmus.bmsParser.total/Rhythmus.bmsParser.notecnt);
-				break;
-			case Settings.GUAGE_EASY:
-				guage += 0.6f * ((float)Rhythmus.bmsParser.total/Rhythmus.bmsParser.notecnt);
-				break;
-			}
-			combo++;
-			gd++;
-			break;
-		case JUDGE_BAD:
-			switch (Settings.guagemode) {
-			case Settings.GUAGE_HARD:
-				guage -= 6;
-				break;
-			case Settings.GUAGE_GROOVE:
-				guage -= 4;
-				break;
-			case Settings.GUAGE_EASY:
-				guage -= 3.2f;
-				break;
-			}
-			combo=0;
-			bd++;
-			missTime = TimeUtils.millis();
-			break;
-		case JUDGE_POOR:
-			switch (Settings.guagemode) {
-			case Settings.GUAGE_HARD:
-				guage -= 10;
-				break;
-			case Settings.GUAGE_GROOVE:
-				guage -= 6;
-				break;
-			case Settings.GUAGE_EASY:
-				guage -= 4.8f;
-				break;
-			}
-			combo=0;
-			pr++;
-			missTime = TimeUtils.millis();
-			break;
-		}
-		if (guage > 100) guage = 100;
-		if (guage <= 0) {
-			if (Settings.guagemode == Settings.GUAGE_HARD)
-				exitGame(2);
-			guage = 0;
-		}
-		
-		if (maxcombo < combo) maxcombo = combo;
-		judge = num;
-		judgeTime = TimeUtils.millis();
-	}
 	
-	public void exitGame(int v) {
-		// force exit
-		if (exitmode > 0) return;
-		forceexittime = TimeUtils.millis();
+	
+	public static void exitGame(int v) {
+		if (exitmode != 0) return;
+		fade.doFadeOut();
 		exitmode = v;
 		Gdx.input.setInputProcessor(null);
 		if (v == 1) sButton.play();
+	}
+	
+	private static BMSKeyData getLastValidKey(int key) {
+		for (BMSKeyData bkd: Rhythmus.bmsData.bmsdata) {
+			if (bkd.getAttr() == 0) {
+				if (key > 8) {
+					if (bkd.getKeyNum() == key-8) {
+						if (bkd.is2PChannel()) {
+							return bkd;
+						} else if (bkd.is2PLNChannel() || bkd.isLNFirst()) {
+							return bkd;
+						}
+					}
+				} else {
+					if (bkd.getKeyNum() == key) {
+						if (bkd.is1PChannel()) {
+							return bkd;
+						} else if (bkd.is1PLNChannel() || bkd.isLNFirst()) {
+							return bkd;
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	private static BMSKeyData getLastValidReleaseKey(int key) {
+		for (BMSKeyData bkd: Rhythmus.bmsData.bmsdata) {
+			if (key > 8) {
+				if (bkd.is2PLNChannel()) {
+					if (bkd.getKeyNum() == key-8) {
+						if (bkd.getAttr() == 0 && !bkd.isLNFirst())
+							return bkd;
+					}
+				}
+			} else {
+				if (bkd.is1PLNChannel()) {
+					if (bkd.getKeyNum() == key) {
+						if (bkd.getAttr() == 0 && !bkd.isLNFirst())
+							return bkd;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -1060,58 +504,8 @@ public class Scene_Play implements Scene {
 	
 	public void changeSpeed(float newSpeed) {
 		if (newSpeed <= 0) return;
-		speed = newSpeed;
+		Settings.speed = newSpeed;
 		sButton.play();
-	}
-	
-	private int getKeyFromChannel(int channel) {
-		return keyindex2[channel%10];
-	}
-	
-	private boolean[] getTouchStatus() {
-		// check touch status and put it in the boolean array
-		// to check key press
-		boolean [] touched = new boolean[8];
-		
-		for (int i=0; i<20; i++)
-		{
-			if (Gdx.input.isTouched(i)) {
-				int x = Gdx.input.getX(i);
-				int y = Gdx.input.getY(i);
-				
-				// change num to 800x480
-				x = x*800/Gdx.graphics.getWidth();
-				y = y*480/Gdx.graphics.getHeight();
-				
-				if (y>240) {
-					int p = prs_left;
-					for (int a=0; a<8; a++)
-					{
-						if (x >= p && x < p+prs_width[a])
-							touched[a] = true;
-						p += prs_width[a];
-					}
-				}
-			}
-		}
-		
-		return touched;
-	}
-	
-	private void getTouchInput() {
-		// get touch input
-		// this method should be called at rendering
-		// to catch user input
-		
-		boolean [] _touch = getTouchStatus();
-		
-		for (int i=0; i<8; i++) {
-			if (!touch[i] && _touch[i])
-				pressNote(i);
-			else if (touch[i] && !_touch[i])
-				releaseNote(i);
-		}
-		
-		touch = _touch;
+		spNote.setSpeed(Settings.speed);
 	}
 }

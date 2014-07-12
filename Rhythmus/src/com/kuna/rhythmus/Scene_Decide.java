@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
@@ -23,10 +24,10 @@ public class Scene_Decide implements Scene {
 	public void init()
 	{
 		// load bitmap
-		String stagefilePath = Rhythmus.bmsParser.dir + Rhythmus.bmsParser.stagefile;
-		if (Gdx.files.external(stagefilePath).exists() && !Gdx.files.external(stagefilePath).isDirectory()) {
+		String stagefilePath = Rhythmus.bmsData.dir + Rhythmus.bmsData.stagefile;
+		if (Gdx.files.absolute(stagefilePath).exists() && !Gdx.files.absolute(stagefilePath).isDirectory()) {
 			Texture.setEnforcePotImages(false);
-			t_bg = new Texture(Gdx.files.external(stagefilePath));
+			t_bg = new Texture(Gdx.files.absolute(stagefilePath));
 			s_bg = new Sprite(t_bg);
 			s_bg.setSize(800, 480);
 		}
@@ -35,14 +36,16 @@ public class Scene_Decide implements Scene {
 		r = new ShapeRenderer();
 
 		// Thread inside so no deadlock
-		BMSData.LoadData(Rhythmus.bmsParser);
+		BMSResource.LoadData(Rhythmus.bmsData);
 		
 		initalized = true;
 	}
 
 	@Override
-	public void draw(SpriteBatch batch) {
+	public void draw(SpriteBatch batch, DecalBatch dbatch) {
 		if (!initalized) return;
+		
+		batch.begin();
 		
 		// draw BMS title and background
 		if (s_bg != null) {
@@ -50,32 +53,36 @@ public class Scene_Decide implements Scene {
 		} else {
 			font.setScale(2.8f);
 			font.setColor(Color.WHITE);
-			font.draw(batch, Rhythmus.bmsParser.title, 120, 360);
+			font.draw(batch, Rhythmus.bmsData.title, 120, 360);
 			
 			font.setScale(1.2f);
 			font.setColor(Color.LIGHT_GRAY);
-			font.draw(batch, Rhythmus.bmsParser.artist, 120, 420);
+			font.draw(batch, Rhythmus.bmsData.artist, 120, 420);
 			
 			font.setScale(1.2f);
 			font.setColor(Color.LIGHT_GRAY);
-			font.draw(batch, Rhythmus.bmsParser.subtitle, 120, 300);
+			font.draw(batch, Rhythmus.bmsData.subtitle, 120, 300);
 		}
+		
+		font.setScale(1.0f);
+		font.draw(batch, String.format("Loading %d", BMSResource.progress), 120, 100);
+		
+		batch.end();
 		
 		// show loading status
 		r.begin(ShapeType.Rectangle);
+	    r.setProjectionMatrix( batch.getProjectionMatrix() );
 		r.setColor(Color.WHITE);
 		r.rect(30, 80, 740, 30);
 		r.end();
 
 		r.begin(ShapeType.FilledRectangle);
+	    r.setProjectionMatrix( batch.getProjectionMatrix() );
 		r.setColor(Color.WHITE);
-		r.filledRect(30, 80, (float)740*BMSData.progress/100, 30);
+		r.filledRect(30, 80, (float)740*BMSResource.progress/100, 30);
 		r.end();
 		
-		font.setScale(1.0f);
-		font.draw(batch, String.format("Loading %d", BMSData.progress), 120, 100);
-		
-		if (BMSData.isLoaded) {
+		if (BMSResource.isLoaded) {
 			Rhythmus.changeScene( Rhythmus.SCENE_PLAY );
 		}
 	}

@@ -8,17 +8,18 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.Timer;
+import com.kuna.rhythmus.bmsdata.BMSUtil;
 import com.kuna.rhythmus.score.ScoreData;
 
-public class Scene_Result {
+public class Scene_Result implements Scene {
 	private ScoreData s;
 	private BitmapFont font;
 	private ResultInputListener rl;
-	private ShapeRenderer r;
 	
 	private Texture t_res;
 	private Sprite[] s_rank = new Sprite[10];
@@ -26,47 +27,19 @@ public class Scene_Result {
 	private Sprite s_fail;
 	private Sprite s_black;
 	
-	private long time_now;
-	private long time_init;
-	private long time_end;
-	
 	private Sound sClear;
 	private Sound sFail;
 	
 	private boolean initalized = false;
 	
+	Scene_FadeInOut fade;
+	
+	@Override
 	public void init() {
 		// update score
-		s = new ScoreData();
-		s.hash = Rhythmus.bmsParser.hash;
-		s.note = Rhythmus.bmsParser.notecnt;
-		s.pg = Rhythmus.sPlay.pg;
-		s.gr = Rhythmus.sPlay.gr;
-		s.gd = Rhythmus.sPlay.gd;
-		s.pr = Rhythmus.sPlay.pr;
-		s.bd = Rhythmus.sPlay.bd;
-		s.combo = Rhythmus.sPlay.maxcombo;
-		s.clear = ScoreData.CLEAR_FAILED;
-		switch (Settings.guagemode) {
-		case Settings.GUAGE_GROOVE:
-			if (Rhythmus.sPlay.guage > 80)
-				s.clear = ScoreData.CLEAR_GROOVE;
-			break;
-		case Settings.GUAGE_EASY:
-			if (Rhythmus.sPlay.guage > 80)
-				s.clear = ScoreData.CLEAR_EASY;
-			break;
-		case Settings.GUAGE_HARD:
-			if (Rhythmus.sPlay.guage > 0) {
-				s.clear = ScoreData.CLEAR_HARD;
-			}
-			break;
-		}
-		if (s.note == s.combo)
-			s.clear = ScoreData.CLEAR_FULLCOMBO;
+		s = Rhythmus.sPlay.spJudge.getScoreData();
 		
-		// save score when not autoplay
-		if (Settings.autoplay == 0)
+		if (s.save)
 			Rhythmus.scoreManager.addScore(s);
 		
 		// spr & fonts
@@ -85,26 +58,33 @@ public class Scene_Result {
 		rl = new ResultInputListener();
 		Gdx.input.setInputProcessor(rl);
 		
-		r = new ShapeRenderer();
+		fade = new Scene_FadeInOut(null, new Handler() {
+			@Override
+			public void InformEvent(Object arg) {
+				// exit result window
+				exitResult();
+			}
+		});
+		// basic: do fade in
+		fade.doFadeIn();
 		
 		// load BGM
 		sClear = Gdx.audio.newSound(Gdx.files.internal("data/clear.ogg"));
 		sFail = Gdx.audio.newSound(Gdx.files.internal("data/fail.ogg"));
 		if (s.clear > ScoreData.CLEAR_FAILED)
-			BMSUtil.PlayUntilLoad(sClear, 5);
+			sClear.play();
 		else
-			BMSUtil.PlayUntilLoad(sFail, 5);
-		
-		time_end = 0;
-		time_init = TimeUtils.millis();
+			sFail.play();
 		
 		initalized = true;
 	}
 	
-	public void draw(SpriteBatch batch) {
+	@Override
+	public void draw(SpriteBatch batch, DecalBatch dbatch) {
 		if (!initalized) return;
 		
-		time_now = TimeUtils.millis();
+		batch.begin();
+		
 		float rate = s.getRate();
 		
 		// failed or clear
@@ -154,33 +134,22 @@ public class Scene_Result {
 		s.setSize(344, 160);
 		s.draw(batch);
 		
+		batch.end();
+		
 		// fade in and fade out
-		if (time_now-time_init < 1000) {
-			float a = ((float)(time_now-time_init))/1000;
-			a = 1-a;
-			s_black.draw(batch, a);
-		}
-		if (time_end>0) {
-			if (time_now-time_end < 1000) {
-				float a = ((float)(time_now-time_end))/1000;
-				if (a>1) a=1;
-				s_black.draw(batch, a);
-			} else {
-				// save score when not autoplay
-				Rhythmus.scoreManager.SaveScore();
-				
-				// move scene
-				Rhythmus.changeScene(Rhythmus.SCENE_SELECT);
-			}
-		}
+		fade.draw(batch);
 	}
 	
 	public void exitResult() {
-		if (time_now-time_init<1000) return;
-		if (time_end > 0) return;
-		time_end = TimeUtils.millis();
+		
+		// save score when not autoplay
+		Rhythmus.scoreManager.SaveScore();
+		
+		// move scene
+		Rhythmus.changeScene(Rhythmus.SCENE_SELECT);
 	}
 	
+	@Override
 	public void dispose() {
 		if (t_res != null) t_res.dispose();
 		if (sClear != null) sClear.dispose();

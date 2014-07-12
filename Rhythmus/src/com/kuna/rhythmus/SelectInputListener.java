@@ -1,6 +1,7 @@
 package com.kuna.rhythmus;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 
 public class SelectInputListener implements InputProcessor {
@@ -14,6 +15,18 @@ public class SelectInputListener implements InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
+		if (keycode == Input.Keys.ESCAPE) {
+			Gdx.app.exit();
+		} else if (keycode == Input.Keys.ENTER) {
+			Rhythmus.sSelect.selectMusic();
+		} else if (keycode == Input.Keys.UP) {
+			Rhythmus.sSelect.selIndex += 1;
+			Rhythmus.sSelect.selIndex %= Rhythmus.bmsList.bmsArr.size();
+		} else if (keycode == Input.Keys.DOWN) {
+			Rhythmus.sSelect.selIndex -= 1;
+			if (Rhythmus.sSelect.selIndex < 0)
+				Rhythmus.sSelect.selIndex = Rhythmus.bmsList.bmsArr.size() - 1;
+		}
 		return false;
 	}
 
@@ -79,8 +92,11 @@ public class SelectInputListener implements InputProcessor {
 			}
 		}
 		
-		if (screenY > 340 && screenY < 388 && screenX > 232 && screenX < 368)
+		if (screenY > 340 && screenY < 380 && screenX > 232 && screenX < 368)
 			Rhythmus.sSelect.buttonPress(9);
+		
+		if (screenY > 380 && screenY < 420 && screenX > 232 && screenX < 368)
+			Rhythmus.sSelect.buttonPress(10);
 		
 		return false;
 	}
@@ -101,7 +117,14 @@ public class SelectInputListener implements InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
+		if (amount > 0) {
+			Rhythmus.sSelect.selIndex += 1;
+			Rhythmus.sSelect.selIndex %= Rhythmus.bmsList.bmsArr.size();
+		} else {
+			Rhythmus.sSelect.selIndex -= 1;
+			if (Rhythmus.sSelect.selIndex < 0)
+				Rhythmus.sSelect.selIndex = Rhythmus.bmsList.bmsArr.size() - 1;
+		}
 		return false;
 	}
 

@@ -12,18 +12,22 @@ public class ScoreManager {
 	public static List<ScoreData> scoreData = new ArrayList<ScoreData>();
 	
 	public void LoadScore() {
-		scoreData.clear();
-		if (Gdx.files.external(_FILENAME).exists()) {
-			String d = Gdx.files.external(_FILENAME).readString();
-			String l[] = d.split("\n");
-			for (String _d:l) {
-				if (_d.length() == 0)
-					continue;
-				
-				ScoreData s = new ScoreData();
-				s.readData(_d);
-				scoreData.add(s);
+		try {
+			scoreData.clear();
+			if (Gdx.files.external(_FILENAME).exists()) {
+				String d = Gdx.files.external(_FILENAME).readString();
+				String l[] = d.split("\n");
+				for (String _d:l) {
+					if (_d.length() == 0)
+						continue;
+					
+					ScoreData s = new ScoreData();
+					s.readData(_d);
+					scoreData.add(s);
+				}
 			}
+		} catch (Exception e) {
+			Gdx.app.log("ERROR", "something error occured during score loading. maybe not compatible data.");
 		}
 	}
 	
@@ -41,10 +45,10 @@ public class ScoreManager {
 		}
 	}
 	
-	public ScoreData getScore(String hash) {
+	public ScoreData getScore(String hash, int key) {
 		for (int i=0; i<scoreData.size(); i++)
 		{
-			if (scoreData.get(i).hash.equals(hash))
+			if (scoreData.get(i).hash.equals(hash) && scoreData.get(i).key == key)
 				return scoreData.get(i);
 		}
 		return null;
@@ -54,7 +58,7 @@ public class ScoreManager {
 		// update available with this method
 		for (int i=0; i<scoreData.size(); i++)
 		{
-			if (scoreData.get(i).hash.equals(s.hash)) {
+			if (scoreData.get(i).hash.equals(s.hash) && scoreData.get(i).key == s.key) {
 				ScoreData old = scoreData.get(i);
 				if (old.clear < s.clear) old.clear = s.clear;
 				if (old.combo < s.combo) old.combo = s.combo;
