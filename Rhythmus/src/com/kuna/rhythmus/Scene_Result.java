@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.kuna.rhythmus.bmsdata.BMSUtil;
+import com.kuna.rhythmus.data.Common;
 import com.kuna.rhythmus.score.ScoreData;
 
 public class Scene_Result implements Scene {
@@ -26,9 +27,6 @@ public class Scene_Result implements Scene {
 	private Sprite s_clear;
 	private Sprite s_fail;
 	private Sprite s_black;
-	
-	private Sound sClear;
-	private Sound sFail;
 	
 	private boolean initalized = false;
 	
@@ -62,6 +60,8 @@ public class Scene_Result implements Scene {
 			@Override
 			public void InformEvent(Object arg) {
 				// exit result window
+				Common.m_clear.stop();
+				Common.m_fail.stop();
 				exitResult();
 			}
 		});
@@ -69,12 +69,10 @@ public class Scene_Result implements Scene {
 		fade.doFadeIn();
 		
 		// load BGM
-		sClear = Gdx.audio.newSound(Gdx.files.internal("data/clear.ogg"));
-		sFail = Gdx.audio.newSound(Gdx.files.internal("data/fail.ogg"));
 		if (s.clear > ScoreData.CLEAR_FAILED)
-			sClear.play();
+			Common.m_clear.play();
 		else
-			sFail.play();
+			Common.m_fail.play();
 		
 		initalized = true;
 	}
@@ -152,7 +150,5 @@ public class Scene_Result implements Scene {
 	@Override
 	public void dispose() {
 		if (t_res != null) t_res.dispose();
-		if (sClear != null) sClear.dispose();
-		if (sFail!=null) sFail.dispose();
 	}
 }

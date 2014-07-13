@@ -104,11 +104,11 @@ public class Scene_KeySetting implements Scene {
 
 			r.setColor(Color.WHITE);
 			if (i == 8 || i == 16) {
-				r.begin(ShapeType.Circle);
+				r.begin(ShapeType.Line);
 			    r.setProjectionMatrix( batch.getProjectionMatrix() );
 				r.circle(s[0], s[1], s[2]/2);
 			} else {
-				r.begin(ShapeType.Rectangle);
+				r.begin(ShapeType.Line);
 			    r.setProjectionMatrix( batch.getProjectionMatrix() );
 				r.rect(s[0], s[1], s[2], s[3]);
 			}

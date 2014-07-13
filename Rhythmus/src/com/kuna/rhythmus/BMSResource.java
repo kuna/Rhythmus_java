@@ -30,7 +30,7 @@ public class BMSResource {
 		isSoundLoaded =false;
 		loadedCnt = 0;
 
-		Texture.setEnforcePotImages(false);
+		//Texture.setEnforcePotImages(false);
 		
 		// create temp directory
 		if (!new File(tempFolder).exists()) {
@@ -116,7 +116,6 @@ public class BMSResource {
 								loaded = true;
 							}
 						} catch (Exception e) {
-							e.printStackTrace();
 							Gdx.app.error("BMSResource", String.format("Cannot load Audio %s", path));
 						}
 					} else {
@@ -180,6 +179,7 @@ public class BMSResource {
 
 	public static void playSound(int sndIndex) {
 		if (wav[sndIndex]!= null) {
+			wav[sndIndex].stop();
 			wav[sndIndex].play();
 		} else {
 			Gdx.app.error("BMSResource", String.format("cannot play %d sound", sndIndex));

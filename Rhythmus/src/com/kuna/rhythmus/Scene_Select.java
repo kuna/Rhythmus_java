@@ -3,7 +3,6 @@ package com.kuna.rhythmus;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -16,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.kuna.rhythmus.bmsdata.BMSData;
@@ -51,7 +51,6 @@ public class Scene_Select implements Scene {
 	private float bgRotation = 0;
 	
 	private BMSList bmsList;
-	private Timer timer;
 	
 	Scene_Select_List ssList;
 	Scene_FadeInOut fade;
@@ -119,18 +118,6 @@ public class Scene_Select implements Scene {
 		});
 		fade.doFadeIn();
 		
-		// set Timer
-		timer = new Timer();
-		timer.scheduleTask(new Task() {
-			@Override
-			public void run() {
-				// rotate image
-				bgRotation += 0.5f;
-				s_bg_spr.setRotation(bgRotation);
-			}
-		}, 0, 0.02f);
-		timer.start();
-		
 		// get bmsList
 		this.bmsList = Rhythmus.bmsList;
 		
@@ -162,6 +149,7 @@ public class Scene_Select implements Scene {
 		// draw select background
 		s_bg.draw(batch);
 		batch.setBlendFunction(GL20.GL_SRC_COLOR, GL20.GL_ONE);
+		s_bg_spr.setRotation((TimeUtils.millis()%(360*50)) / 50.0f);
 		s_bg_spr.draw(batch);
 		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -293,8 +281,8 @@ public class Scene_Select implements Scene {
 	}
 	
 	public void playSound() {
-		long id = Common.snd_select.play();
-		Common.snd_select.setLooping(id, true);
+		Common.m_select.setLooping(true);
+		Common.m_select.play();
 	}
 	
 	private int bmsKeyIndex;
@@ -349,7 +337,7 @@ public class Scene_Select implements Scene {
 	
 	public void selectMusic() {
 		// stop bgm
-		Common.snd_select.stop();
+		Common.m_select.stop();
 		Common.snd_decide.play();
 		
 		// go to next scene (call fade)
@@ -359,7 +347,7 @@ public class Scene_Select implements Scene {
 	
 	public void selectKeysetting() {
 		// stop bgm
-		Common.snd_select.stop();
+		Common.m_select.stop();
 		Common.snd_button.play();
 		
 		// call fade
@@ -369,7 +357,6 @@ public class Scene_Select implements Scene {
 
 	@Override
 	public void dispose() {
-		if (timer != null) timer.stop();
 		if (select != null) select.dispose();
 	}
 }

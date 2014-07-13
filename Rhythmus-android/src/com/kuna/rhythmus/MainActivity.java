@@ -21,7 +21,7 @@ public class MainActivity extends AndroidApplication {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
         AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
-        cfg.useGL20 = true;	// original: false
+        cfg.useGLSurfaceView20API18 = true;
 
 		// check intent whether if executed from other application
 		Intent i = getIntent();

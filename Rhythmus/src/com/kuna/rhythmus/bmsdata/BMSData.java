@@ -92,9 +92,10 @@ public class BMSData {
 		}
 		
 		// get beat from last beat
-		beat += (millisec-time)*((double)bpm/60000/4.0f);
+		// BUG FIXED: 140713
+		beat += (millisec-time)*((double)bpm/60000/4.0f)/getBeatLength((int) beat);
 		
-		// cannot be larger then last beat
+		// cannot be larger then last beat - not supported!
 		//double maxbeat = bmsdata.get(bmsdata.size()-1).beat;
 		//if (beat > maxbeat)
 		//	beat = maxbeat;
@@ -238,16 +239,17 @@ public class BMSData {
 		double beatDecimal = 0;
 		double r = 0;
 		for (BMSKeyData bpm: bpmarr) {
-			while (beatNum < (int)bpm.getBeat() && beatNum < beat) {	// TODO remove (int) to rollback
+			while (beatNum < (int)bpm.getBeat() && beatNum < beat) {
 				r += beatHeight * getBeatLength(beatNum) * (1-beatDecimal) * nbpm / GENERAL_BPM;
 				beatNum++;
 				beatDecimal = 0;
 			}
 			
 			// new BPM applies first (in case of xx.0)
-			if (beatNum == (int)bpm.getBeat()) {
-				r += beatHeight * getBeatLength(beatNum) * (bpm.getBeat()%1 - beatDecimal) * nbpm / GENERAL_BPM;
-				beatDecimal = bpm.getBeat() % 1;
+			// PATCHED BUG: 140713
+			if (beatNum == (int)bpm.getBeat() && b > bpm.getBeat()) {
+				r += beatHeight * getBeatLength(beatNum) * ((bpm.getBeat()%1) - beatDecimal) * nbpm / GENERAL_BPM;
+				beatDecimal = bpm.getBeat()%1;
 				nbpm = bpm.getValue();
 			}
 			
@@ -261,7 +263,7 @@ public class BMSData {
 			beatNum++;
 			beatDecimal = 0;
 		}
-		r += beatHeight * getBeatLength(beatNum) * nbpm / GENERAL_BPM * decimal;
+		r += beatHeight * getBeatLength(beatNum) * nbpm / GENERAL_BPM * (decimal - beatDecimal);
 		return r;
 	}
 	

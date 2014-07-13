@@ -71,6 +71,12 @@ intent.putExtra("RemoveAfterPlay", false);	// 기본값: false
 9. Zip archive 파일 지원 <code>zip 파일 안에 별개의 폴더 없이 곧바로 bms와 관련 리소스들이 들어있어야 합니다.</code>
 10. 그 이외 플레이 도중 back 버튼이나 잘못된 setting 등의 문제로 인해 튕기는 잡다한 버그 수정.
 
+##### 140713
+
+1. libgdx 모듈 1.2로 업데이트.
+2. sound 작동 방식에 약간의 수정이 있었습니다. 안드로이드에서 훨씬 배경음 등이 재생이 잘 될 것입니다.
+3. 가변BPM이 소숫점이 있는 beat에 위치할 때 노트가 순간이동하는 버그를 해결하였습니다. (BMSjava 엔진 수정)
+
 
 How to Use
 ---------------

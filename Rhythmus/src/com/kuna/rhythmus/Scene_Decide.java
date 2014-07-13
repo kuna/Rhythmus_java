@@ -26,7 +26,7 @@ public class Scene_Decide implements Scene {
 		// load bitmap
 		String stagefilePath = Rhythmus.bmsData.dir + Rhythmus.bmsData.stagefile;
 		if (Gdx.files.absolute(stagefilePath).exists() && !Gdx.files.absolute(stagefilePath).isDirectory()) {
-			Texture.setEnforcePotImages(false);
+			//Texture.setEnforcePotImages(false);
 			t_bg = new Texture(Gdx.files.absolute(stagefilePath));
 			s_bg = new Sprite(t_bg);
 			s_bg.setSize(800, 480);
@@ -70,16 +70,16 @@ public class Scene_Decide implements Scene {
 		batch.end();
 		
 		// show loading status
-		r.begin(ShapeType.Rectangle);
+		r.begin(ShapeType.Line);
 	    r.setProjectionMatrix( batch.getProjectionMatrix() );
 		r.setColor(Color.WHITE);
 		r.rect(30, 80, 740, 30);
 		r.end();
 
-		r.begin(ShapeType.FilledRectangle);
+		r.begin(ShapeType.Filled);
 	    r.setProjectionMatrix( batch.getProjectionMatrix() );
 		r.setColor(Color.WHITE);
-		r.filledRect(30, 80, (float)740*BMSResource.progress/100, 30);
+		r.rect(30, 80, (float)740*BMSResource.progress/100, 30);
 		r.end();
 		
 		if (BMSResource.isLoaded) {

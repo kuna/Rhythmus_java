@@ -6,7 +6,7 @@ import javax.xml.ws.AsyncHandler;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -84,14 +84,14 @@ public class Scene_FadeInOut implements Scene_Interface{
 		
 		if (alpha != 0) {
 			// draw
-			Gdx.gl.glEnable(GL10.GL_BLEND);
-		    Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			Gdx.gl.glEnable(GL20.GL_BLEND);
+		    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		    r.setProjectionMatrix( batch.getProjectionMatrix() );
-			r.begin(ShapeType.FilledRectangle);
+			r.begin(ShapeType.Filled);
 			r.setColor(new Color(0, 0, 0, alpha));
-			r.filledRect(0, 0, 800, 480);
+			r.rect(0, 0, 800, 480);
 			r.end();
-			Gdx.gl.glDisable(GL10.GL_BLEND);
+			Gdx.gl.glDisable(GL20.GL_BLEND);
 		}
 	}
 

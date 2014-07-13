@@ -1,7 +1,6 @@
 package com.kuna.rhythmus;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
-import com.badlogic.gdx.graphics.g3d.model.Model;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.sun.xml.internal.bind.v2.model.impl.ModelBuilder;
 

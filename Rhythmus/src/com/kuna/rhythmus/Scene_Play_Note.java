@@ -1,9 +1,7 @@
 package com.kuna.rhythmus;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,11 +9,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.kuna.rhythmus.bmsdata.BMSData;
 import com.kuna.rhythmus.bmsdata.BMSKeyData;
 import com.kuna.rhythmus.bmsdata.BMSUtil;
-import com.kuna.rhythmus.score.ScoreData;
 
 public class Scene_Play_Note implements Scene_Interface {
 	
@@ -152,9 +148,6 @@ public class Scene_Play_Note implements Scene_Interface {
 		s_prs_scr2 = new Sprite(s_prs_scr);
 		s_prs_scr2.setPosition(Scene_Play_Setting.leftPos + Scene_Play_Setting.lainWidth*2 + Scene_Play_Setting.lainMargin - Scene_Play_Setting.noteWidth[8],
 				Scene_Play_Setting.getLainBottom() - Scene_Play_Setting.lainPrsBaseHeight);
-		
-		/* TODO tmp font*/
-		font.setColor(Color.WHITE);
 	}
 	
 	public void setSpeed(float speed2) {
@@ -176,7 +169,12 @@ public class Scene_Play_Note implements Scene_Interface {
 		s_white.setSize(Scene_Play_Setting.getLainWidth(), 1);
 		
 		for (BMSKeyData bkd: arr) {
-			while (py < screenHeight && beat < bkd.getBeat()) {
+			while (py < screenHeight && beat < (int)bkd.getBeat()) {
+				// calculate next beat pos
+				py += Scene_Play_Setting.getLainHeight() * Rhythmus.bmsData.getBeatLength(beat) * speed * (1-beatDecimal) * bpm / BMSData.GENERAL_BPM /* standard BPM */;
+				beatDecimal = 0;
+				beat++;
+				
 				// draw lines
 				s_white.setPosition(Scene_Play_Setting.leftPos, (float) py);
 				if (py > Scene_Play_Setting.getLainBottom())
@@ -187,12 +185,6 @@ public class Scene_Play_Note implements Scene_Interface {
 					if (py > Scene_Play_Setting.getLainBottom())
 						s_white.draw(batch, 0.5f);
 				}
-				//font.draw(batch, String.format("%d", beat), 200, (float) py); DEBUG
-				
-				// calculate next beat pos
-				py += Scene_Play_Setting.getLainHeight() * Rhythmus.bmsData.getBeatLength(beat) * speed * (1-beatDecimal) * bpm / BMSData.GENERAL_BPM /* standard BPM */;
-				beatDecimal = 0;
-				beat++;
 			}
 
 			// bpm change first applies
@@ -208,6 +200,11 @@ public class Scene_Play_Note implements Scene_Interface {
 		
 		// calculate left beat
 		while (py < screenHeight) {
+			// calculate position
+			py += Scene_Play_Setting.getLainHeight() * Rhythmus.bmsData.getBeatLength(beat) * speed * (1-beatDecimal) * bpm / BMSData.GENERAL_BPM;
+			beat++;
+			beatDecimal = 0;
+			
 			s_white.setPosition(Scene_Play_Setting.leftPos, (float) py);
 			if (py > Scene_Play_Setting.getLainBottom())
 				s_white.draw(batch, 0.5f);
@@ -217,11 +214,6 @@ public class Scene_Play_Note implements Scene_Interface {
 				if (py > Scene_Play_Setting.getLainBottom())
 					s_white.draw(batch, 0.5f);
 			}
-			//font.draw(batch, String.format("%d", beat), 200, (float) py);
-			
-			py += Scene_Play_Setting.getLainHeight() * Rhythmus.bmsData.getBeatLength(beat) * speed * (1-beatDecimal) * bpm / BMSData.GENERAL_BPM;
-			beat++;
-			beatDecimal = 0;
 		}
 		
 		/* test code 
@@ -417,8 +409,6 @@ public class Scene_Play_Note implements Scene_Interface {
 			spBom[i].isLongEffect = (Rhythmus.sPlay.longnotePress[i] != 0);
 			spBom[i].draw(batch);
 		}
-		
-		// TODO test 3D fontVector3 textPosition = new Vector3(0, 45, 0);
 	}
 	
 	public void pressNote(int key) {
