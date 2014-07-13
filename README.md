@@ -5,13 +5,13 @@ BMS Player for Android
 
 libGdx engine based BMS Player.
 
-* ³Ê¹« ¿ë·®ÀÌ Å« BMS ÆÄÀÏÀ» ³ÖÀ¸¸é ¸Þ¸ð¸® ºÎÁ·À¸·Î Æ¨±æ ¼ö ÀÖÀ¸¸ç, BMS ÆÄÀÏ °¹¼ö°¡ ¸¹¾Æµµ ·ÎµùÇÏ´Â µ¥ ÇÑ¼¼¿ù °É¸®´Ï À¯ÀÇÇÏ½Ê½Ã¿À.
+* ë„ˆë¬´ ìš©ëŸ‰ì´ í° BMS íŒŒì¼ì„ ë„£ìœ¼ë©´ ë©”ëª¨ë¦¬ ë¶€ì¡±ìœ¼ë¡œ íŠ•ê¸¸ ìˆ˜ ìžˆìœ¼ë©°, BMS íŒŒì¼ ê°¯ìˆ˜ê°€ ë§Žì•„ë„ ë¡œë”©í•˜ëŠ” ë° í•œì„¸ì›” ê±¸ë¦¬ë‹ˆ ìœ ì˜í•˜ì‹­ì‹œì˜¤.
 
-* Android SoundPoolÀÇ Á¦¾à ¹× À©µµ¿ì libGdxÀÇ »ç¿îµå Á¦¾à µîÀ¸·Î ÀÎÇØ¼­ 8-bit wav ÆÄÀÏ°ú °°Àº °æ¿ì Á¦´ë·Î ¼Ò¸®°¡ Àç»ýµÇÁö ¾ÊÀ» ¼ö ÀÖÀ¸´Ï À¯ÀÇÇÏ½Ê½Ã¿À.
+* Android SoundPoolì˜ ì œì•½ ë° ìœˆë„ìš° libGdxì˜ ì‚¬ìš´ë“œ ì œì•½ ë“±ìœ¼ë¡œ ì¸í•´ì„œ 8-bit wav íŒŒì¼ê³¼ ê°™ì€ ê²½ìš° ì œëŒ€ë¡œ ì†Œë¦¬ê°€ ìž¬ìƒë˜ì§€ ì•Šì„ ìˆ˜ ìžˆìœ¼ë‹ˆ ìœ ì˜í•˜ì‹­ì‹œì˜¤.
 
 TODO
 ---------------
-- 3D-Note for mobile <code>ÀÛ¾÷ ÁøÇàÁßÀÌ°í ÁÖ¼®À» Áö¿ì¸é ÇÃ·¹ÀÌµµ °¡´ÉÇÏ³ª ¾ÆÁ÷ ºÒ¿ÏÀüÇÕ´Ï´Ù.</code>
+- 3D-Note for mobile <code>ìž‘ì—… ì§„í–‰ì¤‘ì´ê³  ì£¼ì„ì„ ì§€ìš°ë©´ í”Œë ˆì´ë„ ê°€ëŠ¥í•˜ë‚˜ ì•„ì§ ë¶ˆì™„ì „í•©ë‹ˆë‹¤.</code>
 - Fully-supporting BMS file-format
 - supporting Transparent key sound
 
@@ -26,21 +26,21 @@ Bugfix & Update
 
 ##### 130824
 
-1. °î °³¼ö°¡ ÀûÀ»¶§ Á¤»óÀûÀ¸·Î ¼±°îÀÌ ¾È µÇ´Â ¹®Á¦ ¼öÁ¤
-2. ³ëÆ® ¹Ð¸² Ç¥½Ã Ãß°¡
-3. ¸¶Áö¸· ºñÆ®¿¡¼­ ¸ØÃßÁö ¾Êµµ·Ï ¼öÁ¤
-4. ÇÃ·¹ÀÌ È­¸é ¸¶Áö¸·¿¡ ¿©À¯ºÐÀÇ ½Ã°£À» Ãß°¡ÇÔ
-5. ¾Èµå·ÎÀÌµå¿¡¼­ ÀÔ·ÂÀÌ ¾øÀ» ½Ã È­¸éÀÌ ²¨ÁöÁö ¾Êµµ·Ï ÇÔ
+1. ê³¡ ê°œìˆ˜ê°€ ì ì„ë•Œ ì •ìƒì ìœ¼ë¡œ ì„ ê³¡ì´ ì•ˆ ë˜ëŠ” ë¬¸ì œ ìˆ˜ì •
+2. ë…¸íŠ¸ ë°€ë¦¼ í‘œì‹œ ì¶”ê°€
+3. ë§ˆì§€ë§‰ ë¹„íŠ¸ì—ì„œ ë©ˆì¶”ì§€ ì•Šë„ë¡ ìˆ˜ì •
+4. í”Œë ˆì´ í™”ë©´ ë§ˆì§€ë§‰ì— ì—¬ìœ ë¶„ì˜ ì‹œê°„ì„ ì¶”ê°€í•¨
+5. ì•ˆë“œë¡œì´ë“œì—ì„œ ìž…ë ¥ì´ ì—†ì„ ì‹œ í™”ë©´ì´ êº¼ì§€ì§€ ì•Šë„ë¡ í•¨
 
 ##### 130825
 
-1. ÀÌÁ¦ ¸¶µð ±æÀÌ¸¦ Á¦´ë·Î Ã³¸®ÇÕ´Ï´Ù.
-2. BMS Caching ±â´ÉÀ» Ãß°¡ÇÏ¿´½À´Ï´Ù. (hash°ªÀÌ ¹Ù²î¾î ÀÌÀü ¹öÀü°úÀÇ ½ºÄÚ¾î ¿¬µ¿ ºÒ´É / 12:31¿¡ ¹ö±× ¼öÁ¤)
-3. getBeatFromTime ÇÔ¼ö¿¡ ÀÖ´ø ¹ö±× ¼öÁ¤ (ÀÌÁ¦ L99999999999^999999999999°¡ Á¦´ë·Î µ¹¾Æ°©´Ï´Ù!)
-4. beat/time Á¤¹Ðµµ Çâ»ó
-5. ¾Èµå·ÎÀÌµåÀÇ °æ¿ì Å°À½µéÀÌ ÀÚµ¿À¸·Î À½¾Ç ÇÃ·¹ÀÌ¾î ¶óÀÌºê·¯¸®¿¡ µî·ÏµÇ´Â °É ¸·¾Ò½À´Ï´Ù (.nomedia)
-6. #RANDOM ºÐ±â ±¸¹® Áö¿ø, #STP ¸í·É¾î Ãß°¡ Áö¿ø
-7. ·Õ³ëÆ® ±¸Çö Áß (Å×½ºÆ® ´Ü°è)
+1. ì´ì œ ë§ˆë”” ê¸¸ì´ë¥¼ ì œëŒ€ë¡œ ì²˜ë¦¬í•©ë‹ˆë‹¤.
+2. BMS Caching ê¸°ëŠ¥ì„ ì¶”ê°€í•˜ì˜€ìŠµë‹ˆë‹¤. (hashê°’ì´ ë°”ë€Œì–´ ì´ì „ ë²„ì „ê³¼ì˜ ìŠ¤ì½”ì–´ ì—°ë™ ë¶ˆëŠ¥ / 12:31ì— ë²„ê·¸ ìˆ˜ì •)
+3. getBeatFromTime í•¨ìˆ˜ì— ìžˆë˜ ë²„ê·¸ ìˆ˜ì • (ì´ì œ L99999999999^999999999999ê°€ ì œëŒ€ë¡œ ëŒì•„ê°‘ë‹ˆë‹¤!)
+4. beat/time ì •ë°€ë„ í–¥ìƒ
+5. ì•ˆë“œë¡œì´ë“œì˜ ê²½ìš° í‚¤ìŒë“¤ì´ ìžë™ìœ¼ë¡œ ìŒì•… í”Œë ˆì´ì–´ ë¼ì´ë¸ŒëŸ¬ë¦¬ì— ë“±ë¡ë˜ëŠ” ê±¸ ë§‰ì•˜ìŠµë‹ˆë‹¤ (.nomedia)
+6. #RANDOM ë¶„ê¸° êµ¬ë¬¸ ì§€ì›, #STP ëª…ë ¹ì–´ ì¶”ê°€ ì§€ì›
+7. ë¡±ë…¸íŠ¸ êµ¬í˜„ ì¤‘ (í…ŒìŠ¤íŠ¸ ë‹¨ê³„)
 
 ##### 130826
 
@@ -48,42 +48,42 @@ Bugfix & Update
 
 ##### 130829
 
-1. µåµð¾î! ·Õ³ëÆ®¸¦ Á¤»óÀûÀ¸·Î Áö¿øÇÕ´Ï´Ù (130829 19:41 ¼öÁ¤)
-2. ¼±°îÆÄÀÏ ·Îµù ½Ã¿¡ Select inputÀ» ¹ÞÁö ¾Êµµ·Ï ¼öÁ¤
+1. ë“œë””ì–´! ë¡±ë…¸íŠ¸ë¥¼ ì •ìƒì ìœ¼ë¡œ ì§€ì›í•©ë‹ˆë‹¤ (130829 19:41 ìˆ˜ì •)
+2. ì„ ê³¡íŒŒì¼ ë¡œë”© ì‹œì— Select inputì„ ë°›ì§€ ì•Šë„ë¡ ìˆ˜ì •
 
 ##### 140712
 
-¹æÇÐÀ» ¸ÂÀÌÇÏ¾ß + ¿©·¯ »ç¶÷µéÀÇ ¼º¿øÀ¸·Î ÀÎÇÑ ¹«·Á 1³â¸¸ÀÇ ¾÷µ¥ÀÌÆ®...
+ë°©í•™ì„ ë§žì´í•˜ì•¼ + ì—¬ëŸ¬ ì‚¬ëžŒë“¤ì˜ ì„±ì›ìœ¼ë¡œ ì¸í•œ ë¬´ë ¤ 1ë…„ë§Œì˜ ì—…ë°ì´íŠ¸...
 
-1. ¿ø·¡ edit ±â´ÉÀ» ³ÖÀ¸·Á°í ÇÏ¿´À¸³ª ÀÌ ºÎºÐÀ» [sabuneditor](https://github.com/kuna/SabunEditor_Android)·Î ÀÌÀüÇÏ¿´½À´Ï´Ù.
-2. BMS Parser ¿£ÁøÀÌ º°°³·Î ºÐ¸®µÇ¾î [BMSJava](https://github.com/kuna/BMSJava) ¶óÀÌºê·¯¸®·Î Á¦°øµÇ°í ÀÖ½À´Ï´Ù. BMS ÆÄ½Ì ¹× Ã³¸® °ü·Ã ¹®Á¦µµ ÇÔ²² ¼öÁ¤µÇ¾ú½À´Ï´Ù. 
-3. °ÔÀÓ ¿£Áø ÀÚÃ¼¸¦ ¸ðµÎ refactoring ÇÏ¿´½À´Ï´Ù. <code>¿Ïº®ÇÏÁø ¾Ê°í, Scene_Play_Setting°ú °°ÀÌ Àß¸ø ¸®ÆåÅä¸µÇÑ ÄÚµåµµ ÀÖÁö¸¸ ÀÌ Á¤µµ¸é Àüº¸´Ü ÈÎ¾À ³´Áö!</code>
-4. ¿ÜºÎ¿¡¼­ Intent¸¦ ÁÖ¾î¼­ BMS¸¦ ÇÃ·¹ÀÌ ½ÃÅ³ ¼ö ÀÖ½À´Ï´Ù. ÀÎÀÚ´Â ´ÙÀ½°ú °°½À´Ï´Ù.
+1. ì›ëž˜ edit ê¸°ëŠ¥ì„ ë„£ìœ¼ë ¤ê³  í•˜ì˜€ìœ¼ë‚˜ ì´ ë¶€ë¶„ì„ [sabuneditor](https://github.com/kuna/SabunEditor_Android)ë¡œ ì´ì „í•˜ì˜€ìŠµë‹ˆë‹¤.
+2. BMS Parser ì—”ì§„ì´ ë³„ê°œë¡œ ë¶„ë¦¬ë˜ì–´ [BMSJava](https://github.com/kuna/BMSJava) ë¼ì´ë¸ŒëŸ¬ë¦¬ë¡œ ì œê³µë˜ê³  ìžˆìŠµë‹ˆë‹¤. BMS íŒŒì‹± ë° ì²˜ë¦¬ ê´€ë ¨ ë¬¸ì œë„ í•¨ê»˜ ìˆ˜ì •ë˜ì—ˆìŠµë‹ˆë‹¤. 
+3. ê²Œìž„ ì—”ì§„ ìžì²´ë¥¼ ëª¨ë‘ refactoring í•˜ì˜€ìŠµë‹ˆë‹¤. <code>ì™„ë²½í•˜ì§„ ì•Šê³ , Scene_Play_Settingê³¼ ê°™ì´ ìž˜ëª» ë¦¬íŽ™í† ë§í•œ ì½”ë“œë„ ìžˆì§€ë§Œ ì´ ì •ë„ë©´ ì „ë³´ë‹¨ í›¨ì”¬ ë‚«ì§€!</code>
+4. ì™¸ë¶€ì—ì„œ Intentë¥¼ ì£¼ì–´ì„œ BMSë¥¼ í”Œë ˆì´ ì‹œí‚¬ ìˆ˜ ìžˆìŠµë‹ˆë‹¤. ì¸ìžëŠ” ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤.
 ```java
-intent.putExtra("Beat", 0);					// ±âº»°ª: 0
-intent.putExtra("File", "test.bme");		// ÇÊ¼ö·Î ÀÔ·ÂÇØ¾ß ÇÔ
-intent.putExtra("RemoveAfterPlay", false);	// ±âº»°ª: false
+intent.putExtra("Beat", 0);					// ê¸°ë³¸ê°’: 0
+intent.putExtra("File", "test.bme");		// í•„ìˆ˜ë¡œ ìž…ë ¥í•´ì•¼ í•¨
+intent.putExtra("RemoveAfterPlay", false);	// ê¸°ë³¸ê°’: false
 ```
-5. Å°¼³Á¤ ±â´É ¹× È­¸éÀ» Ãß°¡ÇÏ¿´½À´Ï´Ù.
-6. ´Ù¾çÇÑ ºÎºÐ¿¡¼­ÀÇ ¸®¼Ò½º ¼öÁ¤ ¹× Ãß°¡.
-7. 5K, 5K+SC, 7K, 7K+SC, 7K+SC for PC, 14K+SC for PCÀÇ ´Ù¾çÇÑ ¸ðµå Áö¿ø.
-8. ¸ð¹ÙÀÏ ±â±â¿¡¼­ÀÇ ÀÎ°£ÀûÀÎ ÇÃ·¹ÀÌ¸¦ À§ÇÑ ÆÇÁ¤ ¿ÏÈ­ <code>2¹è ¿ÏÈ­µÇ¾ú½À´Ï´Ù</code>
-9. Zip archive ÆÄÀÏ Áö¿ø <code>zip ÆÄÀÏ ¾È¿¡ º°°³ÀÇ Æú´õ ¾øÀÌ °ð¹Ù·Î bms¿Í °ü·Ã ¸®¼Ò½ºµéÀÌ µé¾îÀÖ¾î¾ß ÇÕ´Ï´Ù.</code>
-10. ±× ÀÌ¿Ü ÇÃ·¹ÀÌ µµÁß back ¹öÆ°ÀÌ³ª Àß¸øµÈ setting µîÀÇ ¹®Á¦·Î ÀÎÇØ Æ¨±â´Â Àâ´ÙÇÑ ¹ö±× ¼öÁ¤.
+5. í‚¤ì„¤ì • ê¸°ëŠ¥ ë° í™”ë©´ì„ ì¶”ê°€í•˜ì˜€ìŠµë‹ˆë‹¤.
+6. ë‹¤ì–‘í•œ ë¶€ë¶„ì—ì„œì˜ ë¦¬ì†ŒìŠ¤ ìˆ˜ì • ë° ì¶”ê°€.
+7. 5K, 5K+SC, 7K, 7K+SC, 7K+SC for PC, 14K+SC for PCì˜ ë‹¤ì–‘í•œ ëª¨ë“œ ì§€ì›.
+8. ëª¨ë°”ì¼ ê¸°ê¸°ì—ì„œì˜ ì¸ê°„ì ì¸ í”Œë ˆì´ë¥¼ ìœ„í•œ íŒì • ì™„í™” <code>2ë°° ì™„í™”ë˜ì—ˆìŠµë‹ˆë‹¤</code>
+9. Zip archive íŒŒì¼ ì§€ì› <code>zip íŒŒì¼ ì•ˆì— ë³„ê°œì˜ í´ë” ì—†ì´ ê³§ë°”ë¡œ bmsì™€ ê´€ë ¨ ë¦¬ì†ŒìŠ¤ë“¤ì´ ë“¤ì–´ìžˆì–´ì•¼ í•©ë‹ˆë‹¤.</code>
+10. ê·¸ ì´ì™¸ í”Œë ˆì´ ë„ì¤‘ back ë²„íŠ¼ì´ë‚˜ ìž˜ëª»ëœ setting ë“±ì˜ ë¬¸ì œë¡œ ì¸í•´ íŠ•ê¸°ëŠ” ìž¡ë‹¤í•œ ë²„ê·¸ ìˆ˜ì •.
 
 ##### 140713
 
-1. libgdx ¸ðµâ 1.2·Î ¾÷µ¥ÀÌÆ®.
-2. sound ÀÛµ¿ ¹æ½Ä¿¡ ¾à°£ÀÇ ¼öÁ¤ÀÌ ÀÖ¾ú½À´Ï´Ù. ¾Èµå·ÎÀÌµå¿¡¼­ ÈÎ¾À ¹è°æÀ½ µîÀÌ Àç»ýÀÌ Àß µÉ °ÍÀÔ´Ï´Ù.
-3. °¡º¯BPMÀÌ ¼Ò¼ýÁ¡ÀÌ ÀÖ´Â beat¿¡ À§Ä¡ÇÒ ¶§ ³ëÆ®°¡ ¼ø°£ÀÌµ¿ÇÏ´Â ¹ö±×¸¦ ÇØ°áÇÏ¿´½À´Ï´Ù. (BMSjava ¿£Áø ¼öÁ¤)
+1. libgdx ëª¨ë“ˆ 1.2ë¡œ ì—…ë°ì´íŠ¸.
+2. sound ìž‘ë™ ë°©ì‹ì— ì•½ê°„ì˜ ìˆ˜ì •ì´ ìžˆì—ˆìŠµë‹ˆë‹¤. ì•ˆë“œë¡œì´ë“œì—ì„œ í›¨ì”¬ ë°°ê²½ìŒ ë“±ì´ ìž¬ìƒì´ ìž˜ ë  ê²ƒìž…ë‹ˆë‹¤.
+3. ê°€ë³€BPMì´ ì†Œìˆ«ì ì´ ìžˆëŠ” beatì— ìœ„ì¹˜í•  ë•Œ ë…¸íŠ¸ê°€ ìˆœê°„ì´ë™í•˜ëŠ” ë²„ê·¸ë¥¼ í•´ê²°í•˜ì˜€ìŠµë‹ˆë‹¤. (BMSjava ì—”ì§„ ìˆ˜ì •)
 
 
 How to Use
 ---------------
 
-1. /sdcard/BMS ¿¡ BMS Æú´õ ¶Ç´Â ¾ÐÃà ÆÄÀÏ(.zip)¸¦ ³ÖÀ¸¼¼¿ä.
-2. ÇÁ·Î±×·¥À» ÄÕ´Ï´Ù. ¾Èµå·ÎÀÌµå(¸ð¹ÙÀÏ)ÀÇ °æ¿ì Ã¹ ½ÇÇà ½Ã°£ÀÌ ´Ù¼Ò ¿À·¡ °É¸±¼ö ÀÖÀ¸´Ï Àá½Ã¸¸ ±â´Ù·Á ÁÖ¼¼¿ä.
-3. ¸¶À½²¯ ÇÃ·¹ÀÌ ÇÕ´Ï´Ù!
+1. /sdcard/BMS ì— BMS í´ë” ë˜ëŠ” ì••ì¶• íŒŒì¼(.zip)ë¥¼ ë„£ìœ¼ì„¸ìš”.
+2. í”„ë¡œê·¸ëž¨ì„ ì¼­ë‹ˆë‹¤. ì•ˆë“œë¡œì´ë“œ(ëª¨ë°”ì¼)ì˜ ê²½ìš° ì²« ì‹¤í–‰ ì‹œê°„ì´ ë‹¤ì†Œ ì˜¤ëž˜ ê±¸ë¦´ìˆ˜ ìžˆìœ¼ë‹ˆ ìž ì‹œë§Œ ê¸°ë‹¤ë ¤ ì£¼ì„¸ìš”.
+3. ë§ˆìŒê» í”Œë ˆì´ í•©ë‹ˆë‹¤!
 
 
 Sample Play Movie
@@ -94,7 +94,8 @@ Sample Play Movie
 Tip
 ---------------
 
-1. ¾Èµå·ÎÀÌµå¿¡¼­ ÇÁ·Î±×·¥À» ²ô°í ´Ù½Ã Ä×´Âµ¥ °ËÀº È­¸é¸¸ ³ª¿Â´Ù¸é, ÀÜ·ùÁßÀÎ ¸®¼Ò½º°¡ ³²¾ÆÀÖÀ» °¡´É¼ºÀÌ ÀÖ½À´Ï´Ù. ¸Þ¸ð¸® Á¤¸®¸¦ ÇÏ°í ³ª¼­ ´Ù½Ã ÄÑ ÁÖ¼¼¿ä.
+1. ì•ˆë“œë¡œì´ë“œì—ì„œ í”„ë¡œê·¸ëž¨ì„ ë„ê³  ë‹¤ì‹œ ì¼°ëŠ”ë° ê²€ì€ í™”ë©´ë§Œ ë‚˜ì˜¨ë‹¤ë©´, ìž”ë¥˜ì¤‘ì¸ ë¦¬ì†ŒìŠ¤ê°€ ë‚¨ì•„ìžˆì„ ê°€ëŠ¥ì„±ì´ ìžˆìŠµë‹ˆë‹¤.<code>ì´ ê²½ìš° tempoarily fileì„ ì§€ìš°ê³  ìžˆì„ ê°€ëŠ¥ì„±ì´ ë†’ìŠµë‹ˆë‹¤.</code> ìž‘ì—…ì´ ëë‚˜ê¸°ë¥¼ ê¸°ë‹¤ë¦¬ì‹œê±°ë‚˜, ë©”ëª¨ë¦¬ ì •ë¦¬/ì•± ê°•ì œì¢…ë£Œë¥¼ í•˜ê³  ë‚˜ì„œ ë‹¤ì‹œ ì¼œ ì£¼ì„¸ìš”.
+2. ì¶©ì „ê¸° ë¹¼ê³  í”Œë ˆì´ í•´ ì£¼ì„¸ìš”!! ì´ìœ ëŠ” ì§ì ‘ í•´ ë³´ì‹œë©´ ì••ë‹ˆë‹¤.
 
 
 
