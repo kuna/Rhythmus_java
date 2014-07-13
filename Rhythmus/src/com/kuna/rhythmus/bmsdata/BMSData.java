@@ -246,14 +246,16 @@ public class BMSData {
 			}
 			
 			// new BPM applies first (in case of xx.0)
-			// PATCHED BUG: 140713
+			// PATCHED BUG: 140713 (2)
+			boolean BPMCheck = false;
 			if (beatNum == (int)bpm.getBeat() && b > bpm.getBeat()) {
 				r += beatHeight * getBeatLength(beatNum) * ((bpm.getBeat()%1) - beatDecimal) * nbpm / GENERAL_BPM;
 				beatDecimal = bpm.getBeat()%1;
 				nbpm = bpm.getValue();
+				BPMCheck = true;
 			}
 			
-			if (beatNum == beat)
+			if (beatNum == beat && !BPMCheck)
 				break;
 		}
 		
