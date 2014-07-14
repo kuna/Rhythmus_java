@@ -274,7 +274,6 @@ public class Rhythmus implements ApplicationListener {
 		// this method also checks about archive
 		bmsData = new BMSData();	// init data
 		
-		Gdx.app.log("TEST", path);
 		if (BMSArchive.getArchiveFileName(path) == null) {
 			if (!BMSParser.LoadBMSFile( path, Rhythmus.bmsData )) {
 				return false;

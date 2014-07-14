@@ -91,16 +91,21 @@ public class BMSData {
 			}
 		}
 		
-		// get beat from last beat
-		// BUG FIXED: 140713
-		beat += (millisec-time)*((double)bpm/60000/4.0f)/getBeatLength((int) beat);
+		// get beat from left beat
+		// BUG FIXED: 140713 140714
+		while (true) {
+			newtime = time + ((int)beat+1-beat) * (1.0f/bpm*60*4) * 1000 * getBeatLength((int) beat);	// millisec
+			if (newtime >= millisec) {
+				return beat + (millisec-time)*(bpm/60000/4.0f)/getBeatLength((int) beat);
+			}
+			
+			time = newtime;
+			beat = (int)beat+1;
+		}
 		
-		// cannot be larger then last beat - not supported!
-		//double maxbeat = bmsdata.get(bmsdata.size()-1).beat;
-		//if (beat > maxbeat)
-		//	beat = maxbeat;
-		
-		return beat;
+		// previous code
+		//beat += (millisec-time)*((double)bpm/60000/4.0f)/getBeatLength((int) beat);
+		//return beat;
 	}
 	
 	public double getTimeFromBeat(List<BMSKeyData> bpmarr, double beat) {

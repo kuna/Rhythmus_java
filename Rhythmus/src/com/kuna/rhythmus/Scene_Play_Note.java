@@ -409,6 +409,9 @@ public class Scene_Play_Note implements Scene_Interface {
 			spBom[i].isLongEffect = (Rhythmus.sPlay.longnotePress[i] != 0);
 			spBom[i].draw(batch);
 		}
+		
+		//font.setColor(Color.WHITE);
+		//font.draw(batch, String.format("%f, %d", beat, pos_y), 200, 200);
 	}
 	
 	public void pressNote(int key) {

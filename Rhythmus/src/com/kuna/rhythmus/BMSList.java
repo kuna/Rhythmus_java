@@ -152,6 +152,7 @@ public class BMSList {
 		// new method from 140712
 		LoadBMSListFromArchive(path);
 		
+		Gdx.app.log("BMSList", "Load finished.");
 		load = true;
 		return true;
 	}

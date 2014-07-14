@@ -77,6 +77,10 @@ intent.putExtra("RemoveAfterPlay", false);	// 기본값: false
 2. sound 작동 방식에 약간의 수정이 있었습니다. 안드로이드에서 훨씬 배경음 등이 재생이 잘 될 것입니다.
 3. 가변BPM이 소숫점이 있는 beat에 위치할 때 노트가 순간이동하는 버그를 해결하였습니다. (BMSjava 엔진 수정)
 
+##### 140714
+
+1. patch minor bug (마지막 BPM 변속 이후(혹은 노트) 마디 변경시 발생; test case: Brain Analysis)
+
 
 How to Use
 ---------------
